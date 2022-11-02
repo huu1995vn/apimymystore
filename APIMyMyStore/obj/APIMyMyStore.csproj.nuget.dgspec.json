@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Sources\\999_OutSource\\04_StoreMyMy\\api\\APIMyMyStore\\APIMyMyStore\\APIMyMyStore.csproj": {}
+    "D:\\Sources\\999_OutSource\\04_StoreMyMy\\api\\APIMyMyStore\\APIMyMyStore.csproj": {}
   },
   "projects": {
-    "D:\\Sources\\999_OutSource\\04_StoreMyMy\\api\\APIMyMyStore\\APIMyMyStore\\APIMyMyStore.csproj": {
+    "D:\\Sources\\999_OutSource\\04_StoreMyMy\\api\\APIMyMyStore\\APIMyMyStore.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Sources\\999_OutSource\\04_StoreMyMy\\api\\APIMyMyStore\\APIMyMyStore\\APIMyMyStore.csproj",
+        "projectUniqueName": "D:\\Sources\\999_OutSource\\04_StoreMyMy\\api\\APIMyMyStore\\APIMyMyStore.csproj",
         "projectName": "APIMyMyStore",
-        "projectPath": "D:\\Sources\\999_OutSource\\04_StoreMyMy\\api\\APIMyMyStore\\APIMyMyStore\\APIMyMyStore.csproj",
+        "projectPath": "D:\\Sources\\999_OutSource\\04_StoreMyMy\\api\\APIMyMyStore\\APIMyMyStore.csproj",
         "packagesPath": "C:\\Users\\trong\\.nuget\\packages\\",
-        "outputPath": "D:\\Sources\\999_OutSource\\04_StoreMyMy\\api\\APIMyMyStore\\APIMyMyStore\\obj\\",
+        "outputPath": "D:\\Sources\\999_OutSource\\04_StoreMyMy\\api\\APIMyMyStore\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "wK7Z0YlFScWA6FLudSSA5CDuEasUWzxlaYJdSU6bHbfkURUOrdQExxThh1w62iioXbtC61Oq55mFGF1SrhCDFQ==",
+  "dgSpecHash": "eIYPEhmVqHRPoxgfRIWKsglDhrbX4yOfzG2rGSf7ffkaZmG/Z82rkey8T2ZohdA6lSfYhb4aeMJlvos/cRuaHQ==",
   "success": true,
-  "projectFilePath": "D:\\Sources\\999_OutSource\\04_StoreMyMy\\api\\APIMyMyStore\\APIMyMyStore\\APIMyMyStore.csproj",
+  "projectFilePath": "D:\\Sources\\999_OutSource\\04_StoreMyMy\\api\\APIMyMyStore\\APIMyMyStore.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\trong\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\trong\\.nuget\\packages\\microsoft.entityframeworkcore\\6.0.10\\microsoft.entityframeworkcore.6.0.10.nupkg.sha512",
