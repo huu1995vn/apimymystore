@@ -1,4 +1,4 @@
-using APIMyMyStore.Contexts;
+using APIMyMyStore.DataAccess;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,19 +39,10 @@ else
     }
 }
 
+builder.Services.AddDbContext<PostgreSqlContext>(options => options.UseNpgsql(defaultConnectionString));
 
-builder.Services.AddDbContext<UserContext>(options =>
-   options.UseNpgsql(defaultConnectionString));
+builder.Services.AddScoped<IDataAccessProvider, DataAccessProvider>();
 
-var serviceProvider = builder.Services.BuildServiceProvider();
-try
-{
-    var dbContext = serviceProvider.GetRequiredService<UserContext>();
-    dbContext.Database.Migrate();
-}
-catch
-{
-}
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

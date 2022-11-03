@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using APIMyMyStore.Contexts;
 using APIMyMyStore.Entites;
+using APIMyMyStore.DataAccess;
 
 namespace APIMyMyStore.Controllers
 {
@@ -14,25 +14,25 @@ namespace APIMyMyStore.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly UserContext _context;
+        private readonly IDataAccessProvider _dataAccessProvider;
 
-        public UsersController(UserContext context)
+        public UsersController(IDataAccessProvider dataAccessProvider)
         {
-            _context = context;
+            _dataAccessProvider = dataAccessProvider;
         }
 
         // GET: api/Users
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        public ActionResult<IEnumerable<User>> GetUsers()
         {
-            return await _context.Users.ToListAsync();
+            return _dataAccessProvider.GetUserRecords();
         }
 
         // GET: api/Users/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        public ActionResult<User> GetUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = _dataAccessProvider.GetUserSingleRecord(id);
 
             if (user == null)
             {
@@ -44,65 +44,50 @@ namespace APIMyMyStore.Controllers
 
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        [HttpPut()]
+        public IActionResult PutUser([FromBody] User user)
         {
-            if (id != user.id)
+            if (ModelState.IsValid)
             {
-                return BadRequest();
-            }
-
-            _context.Entry(user).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
+                if (!UserExists(user.id))
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+                _dataAccessProvider.UpdateUserRecord(user);
+                return Ok();
             }
-
-            return NoContent();
+            return BadRequest();
         }
 
         // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        public ActionResult<User> PostUser([FromBody] User user)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUser", new { id = user.id }, user);
+            if (ModelState.IsValid)
+            {
+                _dataAccessProvider.AddUserRecord(user);
+                return Ok();
+            }
+            return BadRequest();
         }
 
         // DELETE: api/Users/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public IActionResult DeleteUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
+            if (!UserExists(id))
             {
                 return NotFound();
             }
-
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            _dataAccessProvider.DeleteUserRecord(id);
+            return Ok();
         }
 
         private bool UserExists(int id)
         {
-            return _context.Users.Any(e => e.id == id);
+            return _dataAccessProvider.GetUserSingleRecord(id) != null;
         }
     }
 }

@@ -13,7 +13,7 @@ namespace APIMyMyStore.Entites
         [MaxLength(10)]
         public string phone { get; set; }
         [MaxLength(250)]
-        public string? email { get; set; }
+        public string email { get; set; }
         public DateTime? updatedate { get; set; }
         public DateTime createdate { get; set; }
 
