@@ -10,5 +10,12 @@ namespace APIMyMyStore.DataAccess
         void DeleteUserRecord(int id);  
         User GetUserSingleRecord(int id);  
         List<User> GetUserRecords();  
+
+
+        void AddAdminRecord(Admin user);  
+        void UpdateAdminRecord(Admin user);  
+        void DeleteAdminRecord(int id);  
+        Admin GetAdminSingleRecord(int id);  
+        List<Admin> GetAdminRecords();
     }  
 }  

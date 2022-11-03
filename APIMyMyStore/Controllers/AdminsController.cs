@@ -12,47 +12,47 @@ namespace APIMyMyStore.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class AdminsController : ControllerBase
     {
         private readonly PostgreSqlContext _context;
 
-        public UsersController(PostgreSqlContext context)
+        public AdminsController(PostgreSqlContext context)
         {
             _context = context;
         }
 
-        // GET: api/Users
+        // GET: api/Admins
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> Getusers()
+        public async Task<ActionResult<IEnumerable<Admin>>> Getadmins()
         {
-            return await _context.users.ToListAsync();
+            return await _context.admins.ToListAsync();
         }
 
-        // GET: api/Users/5
+        // GET: api/Admins/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        public async Task<ActionResult<Admin>> GetAdmin(int id)
         {
-            var user = await _context.users.FindAsync(id);
+            var admin = await _context.admins.FindAsync(id);
 
-            if (user == null)
+            if (admin == null)
             {
                 return NotFound();
             }
 
-            return user;
+            return admin;
         }
 
-        // PUT: api/Users/5
+        // PUT: api/Admins/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<IActionResult> PutAdmin(int id, Admin admin)
         {
-            if (id != user.id)
+            if (id != admin.id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
+            _context.Entry(admin).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace APIMyMyStore.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(id))
+                if (!AdminExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace APIMyMyStore.Controllers
             return NoContent();
         }
 
-        // POST: api/Users
+        // POST: api/Admins
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        public async Task<ActionResult<Admin>> PostAdmin(Admin admin)
         {
-            _context.users.Add(user);
+            _context.admins.Add(admin);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUser", new { id = user.id }, user);
+            return CreatedAtAction("GetAdmin", new { id = admin.id }, admin);
         }
 
-        // DELETE: api/Users/5
+        // DELETE: api/Admins/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteAdmin(int id)
         {
-            var user = await _context.users.FindAsync(id);
-            if (user == null)
+            var admin = await _context.admins.FindAsync(id);
+            if (admin == null)
             {
                 return NotFound();
             }
 
-            _context.users.Remove(user);
+            _context.admins.Remove(admin);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool UserExists(int id)
+        private bool AdminExists(int id)
         {
-            return _context.users.Any(e => e.id == id);
+            return _context.admins.Any(e => e.id == id);
         }
     }
 }
