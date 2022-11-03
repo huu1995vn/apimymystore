@@ -12,11 +12,11 @@ namespace APIMyMyStore.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly PostgreSqlContext _context;
 
-        public UsersController(PostgreSqlContext context)
+        public UserController(PostgreSqlContext context)
         {
             _context = context;
         }
@@ -25,14 +25,14 @@ namespace APIMyMyStore.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> Getusers()
         {
-            return await _context.users.ToListAsync();
+            return await _context.Users.ToListAsync();
         }
 
         // GET: api/Users/5
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
-            var user = await _context.users.FindAsync(id);
+            var user = await _context.Users.FindAsync(id);
 
             if (user == null)
             {
@@ -78,7 +78,7 @@ namespace APIMyMyStore.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
-            _context.users.Add(user);
+            _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetUser", new { id = user.id }, user);
@@ -88,13 +88,13 @@ namespace APIMyMyStore.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = await _context.users.FindAsync(id);
+            var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
                 return NotFound();
             }
 
-            _context.users.Remove(user);
+            _context.Users.Remove(user);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -102,7 +102,7 @@ namespace APIMyMyStore.Controllers
 
         private bool UserExists(int id)
         {
-            return _context.users.Any(e => e.id == id);
+            return _context.Users.Any(e => e.id == id);
         }
     }
 }

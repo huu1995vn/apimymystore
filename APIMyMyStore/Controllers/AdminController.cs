@@ -12,11 +12,11 @@ namespace APIMyMyStore.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AdminsController : ControllerBase
+    public class AdminController : ControllerBase
     {
         private readonly PostgreSqlContext _context;
 
-        public AdminsController(PostgreSqlContext context)
+        public AdminController(PostgreSqlContext context)
         {
             _context = context;
         }
@@ -25,14 +25,14 @@ namespace APIMyMyStore.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Admin>>> Getadmins()
         {
-            return await _context.admins.ToListAsync();
+            return await _context.Admins.ToListAsync();
         }
 
         // GET: api/Admins/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Admin>> GetAdmin(int id)
         {
-            var admin = await _context.admins.FindAsync(id);
+            var admin = await _context.Admins.FindAsync(id);
 
             if (admin == null)
             {
@@ -78,7 +78,7 @@ namespace APIMyMyStore.Controllers
         [HttpPost]
         public async Task<ActionResult<Admin>> PostAdmin(Admin admin)
         {
-            _context.admins.Add(admin);
+            _context.Admins.Add(admin);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetAdmin", new { id = admin.id }, admin);
@@ -88,13 +88,13 @@ namespace APIMyMyStore.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAdmin(int id)
         {
-            var admin = await _context.admins.FindAsync(id);
+            var admin = await _context.Admins.FindAsync(id);
             if (admin == null)
             {
                 return NotFound();
             }
 
-            _context.admins.Remove(admin);
+            _context.Admins.Remove(admin);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -102,7 +102,7 @@ namespace APIMyMyStore.Controllers
 
         private bool AdminExists(int id)
         {
-            return _context.admins.Any(e => e.id == id);
+            return _context.Admins.Any(e => e.id == id);
         }
     }
 }
