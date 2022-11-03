@@ -12,47 +12,47 @@ namespace APIMyMyStore.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ToDoesController : ControllerBase
+    public class UsersController : ControllerBase
     {
-        private readonly ToDoContext _context;
+        private readonly UserContext _context;
 
-        public ToDoesController(ToDoContext context)
+        public UsersController(UserContext context)
         {
             _context = context;
         }
 
-        // GET: api/ToDoes
+        // GET: api/Users
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ToDo>>> GetToDos()
+        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return await _context.ToDos.ToListAsync();
+            return await _context.Users.ToListAsync();
         }
 
-        // GET: api/ToDoes/5
+        // GET: api/Users/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ToDo>> GetToDo(int id)
+        public async Task<ActionResult<User>> GetUser(int id)
         {
-            var toDo = await _context.ToDos.FindAsync(id);
+            var user = await _context.Users.FindAsync(id);
 
-            if (toDo == null)
+            if (user == null)
             {
                 return NotFound();
             }
 
-            return toDo;
+            return user;
         }
 
-        // PUT: api/ToDoes/5
+        // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutToDo(int id, ToDo toDo)
+        public async Task<IActionResult> PutUser(int id, User user)
         {
-            if (id != toDo.Id)
+            if (id != user.id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(toDo).State = EntityState.Modified;
+            _context.Entry(user).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace APIMyMyStore.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ToDoExists(id))
+                if (!UserExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace APIMyMyStore.Controllers
             return NoContent();
         }
 
-        // POST: api/ToDoes
+        // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<ToDo>> PostToDo(ToDo toDo)
+        public async Task<ActionResult<User>> PostUser(User user)
         {
-            _context.ToDos.Add(toDo);
+            _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetToDo", new { id = toDo.Id }, toDo);
+            return CreatedAtAction("GetUser", new { id = user.id }, user);
         }
 
-        // DELETE: api/ToDoes/5
+        // DELETE: api/Users/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteToDo(int id)
+        public async Task<IActionResult> DeleteUser(int id)
         {
-            var toDo = await _context.ToDos.FindAsync(id);
-            if (toDo == null)
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
             {
                 return NotFound();
             }
 
-            _context.ToDos.Remove(toDo);
+            _context.Users.Remove(user);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool ToDoExists(int id)
+        private bool UserExists(int id)
         {
-            return _context.ToDos.Any(e => e.Id == id);
+            return _context.Users.Any(e => e.id == id);
         }
     }
 }

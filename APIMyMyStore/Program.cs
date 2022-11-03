@@ -39,13 +39,14 @@ else
     }
 }
 
-builder.Services.AddDbContext<ToDoContext>(options =>
+
+builder.Services.AddDbContext<UserContext>(options =>
    options.UseNpgsql(defaultConnectionString));
 
 var serviceProvider = builder.Services.BuildServiceProvider();
 try
 {
-    var dbContext = serviceProvider.GetRequiredService<ToDoContext>();
+    var dbContext = serviceProvider.GetRequiredService<UserContext>();
     dbContext.Database.Migrate();
 }
 catch
