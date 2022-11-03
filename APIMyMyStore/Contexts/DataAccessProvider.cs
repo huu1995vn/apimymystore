@@ -13,7 +13,7 @@ namespace APIMyMyStore.DataAccess
         {  
             _context = context;  
         }  
-        #region user
+        #region User
         public void AddUserRecord(User user)  
         {   
             _context.users.Add(user);  
@@ -43,8 +43,7 @@ namespace APIMyMyStore.DataAccess
         {  
             return _context.users.ToList();  
         }  
-        #endregion user
-
+        #endregion
 
         #region Admin
         public void AddAdminRecord(Admin Admin)  
@@ -76,7 +75,7 @@ namespace APIMyMyStore.DataAccess
         {  
             return _context.admins.ToList();  
         }  
-        #endregion Admin
+        #endregion
         
     }  
 }  
