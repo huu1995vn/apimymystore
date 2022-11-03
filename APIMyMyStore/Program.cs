@@ -1,4 +1,6 @@
 using APIMyMyStore.DataAccess;
+using APIMyMyStore.Helpers;
+using APIMyMyStore.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +12,8 @@ var configurationBuilder = new ConfigurationBuilder()
 
 builder.Configuration.AddConfiguration(configurationBuilder.Build());
 
+// configure DI for application services
+builder.Services.AddScoped<ITokenService, TokenService>();
 // Add services to the container.
 
 var defaultConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -60,6 +64,18 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthorization();
 
-app.MapControllers();
+// configure HTTP request pipeline
+{
+    // global cors policy
+    app.UseCors(x => x
+        .AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader());
+
+    // custom jwt auth middleware
+    app.UseMiddleware<JwtMiddleware>();
+
+    app.MapControllers();
+}
 
 app.Run();

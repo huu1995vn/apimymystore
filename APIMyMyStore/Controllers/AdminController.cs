@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APIMyMyStore.DataAccess;
 using APIMyMyStore.Entites;
+using RaoXeAPI.Controllers;
 
 namespace APIMyMyStore.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AdminController : ControllerBase
+    public class AdminController : CommonController
     {
         private readonly PostgreSqlContext _context;
 
@@ -23,86 +19,100 @@ namespace APIMyMyStore.Controllers
 
         // GET: api/Admins
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Admin>>> Getadmins()
+        public ActionResult<IEnumerable<Admin>> Getadmins()
         {
-            return await _context.Admins.ToListAsync();
+            return FormatListAdmin(_context.Admins.ToList());
         }
 
         // GET: api/Admins/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Admin>> GetAdmin(int id)
+        public ActionResult<Admin> GetAdmin(int id)
         {
-            var admin = await _context.Admins.FindAsync(id);
-
-            if (admin == null)
+            return Ok(() =>
             {
-                return NotFound();
-            }
+                var admin = _context.Admins.Find(id);
 
-            return admin;
+                if (admin == null)
+                {
+                    throw new Exception(CommonConstants.MESSAGE_DATA_NOT_FOUND);
+                }
+
+                return FormatAdmin(admin);
+            });
+
         }
 
         // PUT: api/Admins/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAdmin(int id, Admin admin)
+        public IActionResult PutAdmin(int id, Admin admin)
         {
-            if (id != admin.id)
+            return Ok(() =>
             {
-                return BadRequest();
-            }
-
-            _context.Entry(admin).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AdminExists(id))
+                if (id != admin.id && !AdminExists(id))
                 {
-                    return NotFound();
+                    throw new Exception(CommonConstants.MESSAGE_DATA_NOT_FOUND);
                 }
-                else
-                {
-                    throw;
-                }
-            }
 
-            return NoContent();
+                _context.Entry(admin).State = EntityState.Modified;
+                _context.SaveChanges();
+                return NoContent();
+                //return CreatedAtAction("GetAdmin", new { id = admin.id }, admin);
+
+            });
+
         }
 
         // POST: api/Admins
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Admin>> PostAdmin(Admin admin)
+        public ActionResult<Admin> PostAdmin(Admin admin)
         {
-            _context.Admins.Add(admin);
-            await _context.SaveChangesAsync();
+            return Ok(() =>
+            {
+                _context.Admins.Add(admin);
+                _context.SaveChanges();
+                return NoContent();
+                //return CreatedAtAction("GetAdmin", new { id = admin.id }, admin);
+            });
 
-            return CreatedAtAction("GetAdmin", new { id = admin.id }, admin);
         }
 
         // DELETE: api/Admins/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAdmin(int id)
+        public IActionResult DeleteAdmin(int id)
         {
-            var admin = await _context.Admins.FindAsync(id);
-            if (admin == null)
+            return Ok(() =>
             {
-                return NotFound();
-            }
+                var admin = _context.Admins.Find(id);
+                if (admin == null)
+                {
+                    return NotFound();
+                }
 
-            _context.Admins.Remove(admin);
-            await _context.SaveChangesAsync();
+                _context.Admins.Remove(admin);
+                _context.SaveChanges();
+                return NoContent();
+            });
 
-            return NoContent();
         }
 
         private bool AdminExists(int id)
         {
             return _context.Admins.Any(e => e.id == id);
+        }
+
+        private Admin FormatAdmin(Admin admin)
+        {
+            admin.password = null;
+            admin.token = null;
+            return admin;
+        }
+
+        private List<Admin> FormatListAdmin(List<Admin> ladmin)
+        {
+       
+            return ladmin.Select(item=> FormatAdmin(item)).ToList();
         }
     }
 }
