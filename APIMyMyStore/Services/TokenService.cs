@@ -1,60 +1,61 @@
 namespace APIMyMyStore.Services;
-
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using APIMyMyStore.Helpers;
 using APIMyMyStore.Models;
 using APIMyMyStore.Entites;
-using APIMyMyStore.DataAccess;
 
 public interface ITokenService
 {
     TokenResponse CreateToken(TokenRequest model);
-    IEnumerable<Admin> GetAll();
-    Admin GetById(int id);
+    IEnumerable<User> GetAll();
+    User GetById(int id);
 }
 
 public class TokenService : ITokenService
 {
     // admins hardcoded for simplicity, store in a db with hashed passwords in production applications
+    DBLibrary.TemplateDAL _dal = null;
 
-    private readonly PostgreSqlContext _context;
-
-    public TokenService(PostgreSqlContext context)
+    public TokenService()
     {
-        _context = context;
+        _dal = new DBLibrary.TemplateDAL(Variables.ConnectionSQL, "Users");
+
     }
 
     public TokenResponse CreateToken(TokenRequest model)
     {
         String password = CommonMethods.GetEncryptMD5(model.password);
-        var admin = _context.Admins.SingleOrDefault(x => (x.phone == model.username || x.email == model.username) && x.password == password);
-
+        var dataset = _dal.GetAllByQuery($"Select * from public.\"Users\" where  (\"Phone\" = '{model.username}' OR \"Email\" = '{model.username}') AND \"Password\" = '{password}'");
+        var users = CommonMethods.ConvertToEntity<User>(dataset);
         // return null if admin not found
-        if (admin == null) return null;
-
+        if (users.Count == 0) return null;
+        User user = users[0];
         // authentication successful so generate jwt token
-        var token = GenerateJwtToken(admin);
+        var token = GenerateJwtToken(user);
 
-        return new TokenResponse(admin, token);
+        return new TokenResponse(user, token);
     }
 
-    public IEnumerable<Admin> GetAll()
+    public IEnumerable<User> GetAll()
     {
-        return _context.Admins;
+        var dataset = _dal.GetAll();
+        var users = CommonMethods.ConvertToEntity<User>(dataset);
+        return users;
     }
 
-    public Admin GetById(int id)
+    public User GetById(int id)
     {
-        return _context.Admins.FirstOrDefault(x => x.id == id);
+        var dataset = _dal.GetAllById(id);
+        var users = CommonMethods.ConvertToEntity<User>(dataset);
+        if(users.Count == 0) return null;
+        return users[0];
     }
 
     // helper methods
 
-    private string GenerateJwtToken(Admin admin)
+    private string GenerateJwtToken(User admin)
     {
         // generate token that is valid for 7 days
         var tokenHandler = new JwtSecurityTokenHandler();

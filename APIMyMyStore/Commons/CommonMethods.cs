@@ -14,6 +14,7 @@ using System.IO.Compression;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Data;
+using System.ComponentModel;
 
 namespace APIMyMyStore
 {
@@ -390,7 +391,7 @@ namespace APIMyMyStore
             return pText;
         }
 
-        public static string FilterUserName(string pText)
+        public static string FilterCustomerName(string pText)
         {
             pText = ConvertUnicodeToASCII(pText.ToLower().Trim());
             return System.Text.RegularExpressions.Regex.Replace(pText, "[^a-z0-9]", string.Empty);
@@ -2032,6 +2033,33 @@ namespace APIMyMyStore
             }
         }
 
+        public static T GetEntity<T>(DataRow row) where T : new()
+        {
+            var entity = new T();
+            var properties = typeof(T).GetProperties();
+
+            foreach (var property in properties)
+            {
+                //Get the description attribute
+                var descriptionAttribute = (DescriptionAttribute)property.GetCustomAttributes(typeof(DescriptionAttribute), true).SingleOrDefault();
+                if (descriptionAttribute == null)
+                    continue;
+
+                property.SetValue(entity, row[descriptionAttribute.Description]);
+            }
+
+            return entity;
+        }
+
+        public static List<T> ConvertToEntity<T>(DataSet pDataSet) where T : new()
+        {
+            List<T> listData = new List<T>();
+            foreach (DataRow row in pDataSet.Tables[0].Rows)
+            {
+                listData.Add(GetEntity<T>(row));
+            }
+            return listData;
+        }
        
     }
 }

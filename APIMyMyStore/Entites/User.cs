@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace APIMyMyStore.Entites
 {
-    public class User
+    public class Customer
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int id { get; set; }

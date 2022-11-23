@@ -1,4 +1,4 @@
-using APIMyMyStore.DataAccess;
+using APIMyMyStore;
 using APIMyMyStore.Helpers;
 using APIMyMyStore.Services;
 using Microsoft.EntityFrameworkCore;
@@ -38,16 +38,11 @@ else
         var host = hostSide.Split("/")[0];
         var database = hostSide.Split("/")[1].Split("?")[0];
 
-        defaultConnectionString = $"Host={host};Database={database};Username={user};Password={password};SSL Mode=Require;Trust Server Certificate=true";
+        defaultConnectionString = $"Host={host};Database={database};Customername={user};Password={password};SSL Mode=Require;Trust Server Certificate=true";
 
     }
 }
-
-builder.Services.AddDbContext<PostgreSqlContext>(options => options.UseNpgsql(defaultConnectionString));
-
-builder.Services.AddScoped<IDataAccessProvider, DataAccessProvider>();
-
-
+Variables.ConnectionSQL = defaultConnectionString;
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

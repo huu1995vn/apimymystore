@@ -11,7 +11,7 @@ public class TokenResponse
     public string token { get; set; }
 
 
-    public TokenResponse(Admin admin, string ptoken)
+    public TokenResponse(User admin, string ptoken)
     {
         id = admin.id;
         email = admin.email;
