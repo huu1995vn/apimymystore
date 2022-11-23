@@ -1,4 +1,3 @@
-namespace APIMyMyStore.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -6,6 +5,7 @@ using System.Text;
 using APIMyMyStore.Models;
 using APIMyMyStore.Entites;
 
+namespace APIMyMyStore.Services;
 public interface ITokenService
 {
     TokenResponse CreateToken(TokenRequest model);
@@ -27,14 +27,14 @@ public class TokenService : ITokenService
     public TokenResponse CreateToken(TokenRequest model)
     {
         String password = CommonMethods.GetEncryptMD5(model.password);
-        var dataset = _dal.GetAllByQuery($"Select * from public.\"Users\" where  (\"Phone\" = '{model.username}' OR \"Email\" = '{model.username}') AND \"Password\" = '{password}'");
+        var dataset = _dal.GetAllByQuery($"Select * from public.\"Users\" where  (\"phome\" = '{model.username}' OR \"email\" = '{model.username}') AND \"Password\" = '{password}'");
         var users = CommonMethods.ConvertToEntity<User>(dataset);
         // return null if admin not found
         if (users.Count == 0) return null;
         User user = users[0];
         // authentication successful so generate jwt token
         var token = GenerateJwtToken(user);
-
+        _dal.Update(user.id, new string[]{"Token"}, new object[]{token});
         return new TokenResponse(user, token);
     }
 
@@ -47,7 +47,7 @@ public class TokenService : ITokenService
 
     public User GetById(int id)
     {
-        var dataset = _dal.GetAllById(id);
+        var dataset = _dal.GetDataById(id, Variables.FieldSelectUser);
         var users = CommonMethods.ConvertToEntity<User>(dataset);
         if(users.Count == 0) return null;
         return users[0];

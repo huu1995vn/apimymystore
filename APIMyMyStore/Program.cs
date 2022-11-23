@@ -38,7 +38,7 @@ else
         var host = hostSide.Split("/")[0];
         var database = hostSide.Split("/")[1].Split("?")[0];
 
-        defaultConnectionString = $"Host={host};Database={database};Customername={user};Password={password};SSL Mode=Require;Trust Server Certificate=true";
+        defaultConnectionString = $"Host={host};Database={database};Username={user};Password={password};SSL Mode=Require;Trust Server Certificate=true";
 
     }
 }

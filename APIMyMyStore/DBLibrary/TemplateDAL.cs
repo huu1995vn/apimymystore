@@ -257,9 +257,9 @@ namespace DBLibrary
                 {
                     sql.Append(" WHERE ");
                 }
-                else 
-                { 
-                    sql.Append(" AND "); 
+                else
+                {
+                    sql.Append(" AND ");
                 }
                 sql.Append("(" + pCondition + ")");
             }
@@ -436,7 +436,7 @@ namespace DBLibrary
             }
             cmd.CommandText = string.Format(sqlInsert, TableName, sbField, sbValue);
             return ExecuteNonQuery(cmd);
-            
+
         }
 
         public long InsertNonIdentity(string[] pFields, object[] pDatas)
@@ -503,7 +503,7 @@ namespace DBLibrary
         public int Update(long pId, string[] pFields, object[] pDatas, string pCondition)
         {
             string sqlUpdate = "UPDATE " + TableName + " SET {0} WHERE " + this.ID + "=" + pId;
-            if(!string.IsNullOrEmpty(pCondition))
+            if (!string.IsNullOrEmpty(pCondition))
             {
                 sqlUpdate = sqlUpdate + " AND " + pCondition;
             }
@@ -525,7 +525,7 @@ namespace DBLibrary
         public int Update(long pId, List<string> pFields, List<object> pDatas, string pCondition)
         {
             string sqlUpdate = "UPDATE " + TableName + " SET {0} WHERE " + this.ID + "=" + pId;
-            if(!string.IsNullOrEmpty(pCondition))
+            if (!string.IsNullOrEmpty(pCondition))
             {
                 sqlUpdate = sqlUpdate + " AND " + pCondition;
             }
@@ -720,9 +720,12 @@ namespace DBLibrary
         #endregion
 
         #region "Search Data"
-        
+
         public DataSet SearchData(int pFrom, int pTo, string pTextOrder, string pSelect, string pCondition, List<string> pTextSearchFields, List<object> pTextSearchDatas, List<string> pFieldCondition, List<object> pDataCondition)
         {
+            pFrom = pFrom > 0 ? pFrom : 1;
+            pTo = pTo > 0 ? pTo : 10;
+
             NpgsqlCommand cmd = new NpgsqlCommand();
             StringBuilder sbCondition = new StringBuilder();
             if (pTextSearchFields != null)
@@ -769,7 +772,7 @@ namespace DBLibrary
             }
             pCondition = sbCondition.ToString();
             cmd.CommandText = $@"
-SELECT {pSelect}, TotalRow = COUNT(1) OVER(), RowIndex = ROW_NUMBER() OVER(ORDER BY {pTextOrder})
+SELECT {pSelect}, COUNT(1) OVER() as TotalRow, ROW_NUMBER() OVER(ORDER BY {pTextOrder}) as RowIndex
 FROM {this.TableName}{pCondition}
 ORDER BY {pTextOrder}
 OFFSET {pFrom - 1} ROWS
@@ -779,6 +782,9 @@ FETCH FIRST {pTo - pFrom + 1} ROWS ONLY";
 
         public DataSet SearchData(int pFrom, int pTo, string pTextOrder, string pSelect, string pCondition, List<string> pTextSearchFields, List<object> pTextSearchDatas, List<string> pFieldCondition, List<object> pDataCondition, List<string> pFieldSums)
         {
+            pFrom = pFrom > 0 ? pFrom : 1;
+            pTo = pTo > 0 ? pTo : 10;
+
             string sql;
             NpgsqlCommand cmd = new NpgsqlCommand();
             StringBuilder sbCondition = new StringBuilder();
@@ -827,12 +833,12 @@ FETCH FIRST {pTo - pFrom + 1} ROWS ONLY";
             }
             pCondition = sbCondition.ToString();
             sql = $@"
-SELECT {pSelect}, TotalRow = COUNT(1) OVER(), RowIndex = ROW_NUMBER() OVER(ORDER BY {pTextOrder})
+SELECT {pSelect}, COUNT(1) OVER() as TotalRow , ROW_NUMBER() OVER(ORDER BY {pTextOrder}) RowIndex
 FROM {this.TableName}{pCondition}
 ORDER BY {pTextOrder}
 OFFSET {pFrom - 1} ROWS
 FETCH FIRST {pTo - pFrom + 1} ROWS ONLY";
-            if (pFieldSums != null && pFieldSums.Count> 0)
+            if (pFieldSums != null && pFieldSums.Count > 0)
             {
                 string sum = string.Join(",", pFieldSums.Select(m => $"SUM({m}) AS {m}").ToArray());
                 sql = $"{sql} SELECT {sum} FROM {this.TableName}{pCondition}";
@@ -849,7 +855,8 @@ FETCH FIRST {pTo - pFrom + 1} ROWS ONLY";
         {
             int result = -1;
             NpgsqlParameter sqlParam;
-            NpgsqlCommand cmd = new NpgsqlCommand(pProcedureName) { 
+            NpgsqlCommand cmd = new NpgsqlCommand(pProcedureName)
+            {
                 CommandType = CommandType.StoredProcedure
             };
 
@@ -862,14 +869,15 @@ FETCH FIRST {pTo - pFrom + 1} ROWS ONLY";
             }
 
             // Get return value in Store Procedure
-            sqlParam = new NpgsqlParameter("@Return", NpgsqlDbType.Integer) { 
+            sqlParam = new NpgsqlParameter("@Return", NpgsqlDbType.Integer)
+            {
                 Direction = ParameterDirection.ReturnValue
             };
             cmd.Parameters.Add(sqlParam);
 
             ExecuteNonQuery(cmd);
 
-            if(sqlParam.Value != DBNull.Value && sqlParam.Value != null)
+            if (sqlParam.Value != DBNull.Value && sqlParam.Value != null)
             {
                 result = Convert.ToInt32(sqlParam.Value);
             }
@@ -881,7 +889,8 @@ FETCH FIRST {pTo - pFrom + 1} ROWS ONLY";
         {
             int result = -1;
             NpgsqlParameter sqlParam;
-            NpgsqlCommand cmd = new NpgsqlCommand(pProcedureName) { 
+            NpgsqlCommand cmd = new NpgsqlCommand(pProcedureName)
+            {
                 CommandType = CommandType.StoredProcedure
             };
 
@@ -913,14 +922,15 @@ FETCH FIRST {pTo - pFrom + 1} ROWS ONLY";
             }
 
             // Get return value in Store Procedure
-            sqlParam = new NpgsqlParameter("@Return", NpgsqlDbType.Integer) { 
+            sqlParam = new NpgsqlParameter("@Return", NpgsqlDbType.Integer)
+            {
                 Direction = ParameterDirection.ReturnValue
             };
             cmd.Parameters.Add(sqlParam);
 
             ExecuteNonQuery(cmd);
 
-            if(sqlParam.Value != DBNull.Value && sqlParam.Value != null)
+            if (sqlParam.Value != DBNull.Value && sqlParam.Value != null)
             {
                 result = Convert.ToInt32(sqlParam.Value);
             }
@@ -939,7 +949,7 @@ FETCH FIRST {pTo - pFrom + 1} ROWS ONLY";
 
         #region "Insert Or Update"
 
-        public int InsertOrUpdate(List<string> pFields,List<List<object>> pDatas,string[] pFieldConditions,string[] pFieldUpdates)
+        public int InsertOrUpdate(List<string> pFields, List<List<object>> pDatas, string[] pFieldConditions, string[] pFieldUpdates)
         {
             NpgsqlCommand cmd = new NpgsqlCommand();
             string strsql = @"MERGE INTO {0} AS Target
@@ -1282,9 +1292,9 @@ FETCH FIRST {pTo - pFrom + 1} ROWS ONLY";
                 {
                     sql.Append(" WHERE ");
                 }
-                else 
-                { 
-                    sql.Append(" AND "); 
+                else
+                {
+                    sql.Append(" AND ");
                 }
                 sql.Append("(" + pCondition + ")");
             }
@@ -1410,7 +1420,7 @@ FETCH FIRST {pTo - pFrom + 1} ROWS ONLY";
         {
             string sqlInsert = "INSERT INTO {0}({1}) VALUES({2})";
             NpgsqlCommand cmd = new NpgsqlCommand();
-           
+
             StringBuilder sbField = new StringBuilder();
             StringBuilder sbValue = new StringBuilder();
             for (int i = 0; i < pFields.Length; i++)
@@ -1426,14 +1436,14 @@ FETCH FIRST {pTo - pFrom + 1} ROWS ONLY";
             }
             cmd.CommandText = string.Format(sqlInsert, TableName, sbField, sbValue);
             return await ExecuteNonQueryAsync(cmd).ConfigureAwait(false);
-            
+
         }
 
         public async Task<long> InsertAsync(List<string> pFields, List<object> pDatas)
         {
             string sqlInsert = "INSERT INTO {0}({1}) VALUES({2})";
             NpgsqlCommand cmd = new NpgsqlCommand();
-            
+
             StringBuilder sbField = new StringBuilder();
             StringBuilder sbValue = new StringBuilder();
             for (int i = 0; i < pFields.Count; i++)
@@ -1448,7 +1458,7 @@ FETCH FIRST {pTo - pFrom + 1} ROWS ONLY";
                 cmd.Parameters.Add(new NpgsqlParameter(pFields[i], pDatas[i]));
             }
             cmd.CommandText = string.Format(sqlInsert, TableName, sbField, sbValue);
-            return await ExecuteNonQueryAsync(cmd).ConfigureAwait(false);            
+            return await ExecuteNonQueryAsync(cmd).ConfigureAwait(false);
         }
 
         public async Task<long> InsertNonIdentityAsync(string[] pFields, object[] pDatas)
@@ -1515,7 +1525,7 @@ FETCH FIRST {pTo - pFrom + 1} ROWS ONLY";
         public async Task<int> UpdateAsync(long pId, string[] pFields, object[] pDatas, string pCondition)
         {
             string sqlUpdate = "UPDATE " + TableName + " SET {0} WHERE " + this.ID + "=" + pId;
-            if(!string.IsNullOrEmpty(pCondition))
+            if (!string.IsNullOrEmpty(pCondition))
             {
                 sqlUpdate = sqlUpdate + " AND " + pCondition;
             }
@@ -1537,7 +1547,7 @@ FETCH FIRST {pTo - pFrom + 1} ROWS ONLY";
         public async Task<int> UpdateAsync(long pId, List<string> pFields, List<object> pDatas, string pCondition)
         {
             string sqlUpdate = "UPDATE " + TableName + " SET {0} WHERE " + this.ID + "=" + pId;
-            if(!string.IsNullOrEmpty(pCondition))
+            if (!string.IsNullOrEmpty(pCondition))
             {
                 sqlUpdate = sqlUpdate + " AND " + pCondition;
             }
@@ -1732,17 +1742,17 @@ FETCH FIRST {pTo - pFrom + 1} ROWS ONLY";
         #endregion
 
         #region "Search Data"
-        
+
         public async Task<DataSet> SearchAsync(int pFrom, int pTo, string pTextOrder, string pSelect, string pCondition, string[] pTextSearchFields, object[] pTextSearchDatas, string[] pFieldCondition, object[] pDataCondition)
         {
             return await SearchAsync(pFrom, pTo, pTextOrder, pSelect, pCondition, pTextSearchFields, pTextSearchDatas, pFieldCondition, pDataCondition, null).ConfigureAwait(false);
         }
-        
+
         public async Task<DataSet> SearchAsync(int pFrom, int pTo, string pTextOrder, string pSelect, string pCondition, List<string> pTextSearchFields, List<object> pTextSearchDatas, List<string> pFieldCondition, List<object> pDataCondition)
         {
             return await SearchAsync(pFrom, pTo, pTextOrder, pSelect, pCondition, pTextSearchFields, pTextSearchDatas, pFieldCondition, pDataCondition, null).ConfigureAwait(false);
         }
-        
+
         public async Task<DataSet> SearchAsync(int pFrom, int pTo, string pTextOrder, string pSelect, string pCondition, string[] pTextSearchFields, object[] pTextSearchDatas, string[] pFieldCondition, object[] pDataCondition, string[] pFieldSums)
         {
             return await SearchAsync(pFrom, pTo, pTextOrder, pSelect, pCondition, pTextSearchFields?.ToList(), pTextSearchDatas?.ToList(), pFieldCondition?.ToList(), pDataCondition?.ToList(), pFieldSums?.ToList()).ConfigureAwait(false);
@@ -1796,7 +1806,7 @@ FETCH FIRST {pTo - pFrom + 1} ROWS ONLY";
                 sbCondition.Insert(0, " WHERE ");
             }
             pCondition = sbCondition.ToString();
-            if (pFieldSums != null && pFieldSums.Count> 0)
+            if (pFieldSums != null && pFieldSums.Count > 0)
             {
                 string sum = string.Join(",", pFieldSums.Select(m => $"SUM({m}) AS {m}").ToArray());
                 sql = $"{sql} SELECT {sum} FROM {this.TableName} {pCondition}";
@@ -1804,7 +1814,7 @@ FETCH FIRST {pTo - pFrom + 1} ROWS ONLY";
             cmd.CommandText = string.Format(sql, pTextOrder, pCondition);
             return await GetDataAsync(cmd).ConfigureAwait(false);
         }
-        
+
         public async Task<DataSet> SearchDataAsync(int pFrom, int pTo, string pTextOrder, string pSelect, string pCondition, List<string> pTextSearchFields, List<object> pTextSearchDatas, List<string> pFieldCondition, List<object> pDataCondition)
         {
             NpgsqlCommand cmd = new NpgsqlCommand();
@@ -1860,10 +1870,10 @@ FROM (SELECT ROW_NUMBER() OVER(ORDER BY {pTextOrder}) AS RowIndex, {pSelect} FRO
 WHERE RowIndex BETWEEN {pFrom} AND {pTo}";
             DataSet dsData = await GetDataAsync(cmd).ConfigureAwait(false);
             dsData.Tables[1].Columns.Add("TotalRow", typeof(int));
-            if(dsData.Tables[1].Rows.Count > 0)
+            if (dsData.Tables[1].Rows.Count > 0)
             {
                 int totalRow = Convert.ToInt32(dsData.Tables[0].Rows[0][0]);
-                for(int index = 0; index < dsData.Tables[1].Rows.Count;index++)
+                for (int index = 0; index < dsData.Tables[1].Rows.Count; index++)
                 {
                     dsData.Tables[1].Rows[index]["TotalRow"] = totalRow;
                 }
@@ -1880,7 +1890,8 @@ WHERE RowIndex BETWEEN {pFrom} AND {pTo}";
         {
             int result = -1;
             NpgsqlParameter sqlParam;
-            NpgsqlCommand cmd = new NpgsqlCommand(pProcedureName) { 
+            NpgsqlCommand cmd = new NpgsqlCommand(pProcedureName)
+            {
                 CommandType = CommandType.StoredProcedure
             };
 
@@ -1893,14 +1904,15 @@ WHERE RowIndex BETWEEN {pFrom} AND {pTo}";
             }
 
             // Get return value in Store Procedure
-            sqlParam = new NpgsqlParameter("@Return", NpgsqlDbType.Integer) { 
+            sqlParam = new NpgsqlParameter("@Return", NpgsqlDbType.Integer)
+            {
                 Direction = ParameterDirection.ReturnValue
             };
             cmd.Parameters.Add(sqlParam);
 
             await ExecuteNonQueryAsync(cmd).ConfigureAwait(false);
 
-            if(sqlParam.Value != DBNull.Value && sqlParam.Value != null)
+            if (sqlParam.Value != DBNull.Value && sqlParam.Value != null)
             {
                 result = Convert.ToInt32(sqlParam.Value);
             }
@@ -1912,7 +1924,8 @@ WHERE RowIndex BETWEEN {pFrom} AND {pTo}";
         {
             int result = -1;
             NpgsqlParameter sqlParam;
-            NpgsqlCommand cmd = new NpgsqlCommand(pProcedureName) { 
+            NpgsqlCommand cmd = new NpgsqlCommand(pProcedureName)
+            {
                 CommandType = CommandType.StoredProcedure
             };
 
@@ -1944,14 +1957,15 @@ WHERE RowIndex BETWEEN {pFrom} AND {pTo}";
             }
 
             // Get return value in Store Procedure
-            sqlParam = new NpgsqlParameter("@Return", NpgsqlDbType.Integer) { 
+            sqlParam = new NpgsqlParameter("@Return", NpgsqlDbType.Integer)
+            {
                 Direction = ParameterDirection.ReturnValue
             };
             cmd.Parameters.Add(sqlParam);
 
             await ExecuteNonQueryAsync(cmd).ConfigureAwait(false);
 
-            if(sqlParam.Value != DBNull.Value && sqlParam.Value != null)
+            if (sqlParam.Value != DBNull.Value && sqlParam.Value != null)
             {
                 result = Convert.ToInt32(sqlParam.Value);
             }
@@ -1970,7 +1984,7 @@ WHERE RowIndex BETWEEN {pFrom} AND {pTo}";
 
         #region "Insert Or Update"
 
-        public async Task<int> InsertOrUpdateAsync(List<string> pFields,List<List<object>> pDatas,string[] pFieldConditions,string[] pFieldUpdates)
+        public async Task<int> InsertOrUpdateAsync(List<string> pFields, List<List<object>> pDatas, string[] pFieldConditions, string[] pFieldUpdates)
         {
             NpgsqlCommand cmd = new NpgsqlCommand();
             string strsql = @"MERGE INTO {0} AS Target

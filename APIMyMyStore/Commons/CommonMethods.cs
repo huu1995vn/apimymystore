@@ -391,7 +391,7 @@ namespace APIMyMyStore
             return pText;
         }
 
-        public static string FilterCustomerName(string pText)
+        public static string FilterUserName(string pText)
         {
             pText = ConvertUnicodeToASCII(pText.ToLower().Trim());
             return System.Text.RegularExpressions.Regex.Replace(pText, "[^a-z0-9]", string.Empty);

@@ -10,5 +10,7 @@ namespace APIMyMyStore
     public class Variables
     {
         public static string ConnectionSQL = string.Empty;
+        public static string FieldSelectUser = "name, phone, email, address, createDate";
+
     }
 }

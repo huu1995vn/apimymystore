@@ -21,8 +21,6 @@ namespace APIMyMyStore.Controllers
         public IActionResult Token(TokenRequest model)
         {
             var response = _TokenService.CreateToken(model);
-
-           
             return Ok(()=>
             {
                  if (response == null)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -13,12 +14,12 @@ namespace RaoXeAPI.Controllers
     [ApiController]
     public class CommonController : ControllerBase
     {
+
         #region "Variables"
         protected virtual string OrderByGrid => "Id DESC";
         protected virtual string FieldSelect => "*";
         protected virtual List<string> FieldInsert => null;
         protected virtual List<string> FieldUpdate => null;
-        protected virtual List<string> FieldSum => null;
 
         protected virtual string[] FieldSearch => new string[] { "KeywordSearch" };
 
@@ -38,6 +39,7 @@ namespace RaoXeAPI.Controllers
         public Action<long> OnAfterSaveData = null;
         public Action<List<long>> OnAfterDeleteData = null;
 
+        public Action<System.Data.DataSet> ConvertDataSet = null;
 
         #endregion
 
@@ -80,7 +82,7 @@ namespace RaoXeAPI.Controllers
             return base.Ok(res);
         }
 
-        
+
         protected List<object> GetDataListToSave(JObject pData, List<string> pFields)
         {
             string fieldName;
@@ -88,7 +90,7 @@ namespace RaoXeAPI.Controllers
             for (int i = 0; i < pFields.Count; i++)
             {
                 fieldName = pFields[i];
-                
+
                 if (pData.ContainsKey(fieldName))
                 {
                     lstDatas.Add(pData[fieldName] == null ? DBNull.Value : pData[fieldName]);
@@ -151,7 +153,7 @@ namespace RaoXeAPI.Controllers
             }
             if (pFilters != null)
             {
-                foreach (var x in  pFilters)
+                foreach (var x in pFilters)
                 {
                     string key = x.Key;
                     long value = CommonMethods.ConvertToInt64(x.Value);
@@ -182,7 +184,23 @@ namespace RaoXeAPI.Controllers
             }
             return string.Join(" AND ", lstCondition);
         }
+        public static List<Dictionary<string, object>> DataTableToJSON(DataTable table)
+        {
+            var list = new List<Dictionary<string, object>>();
 
+            foreach (System.Data.DataRow row in table.Rows)
+            {
+                var dict = new Dictionary<string, object>();
+
+                foreach (DataColumn col in table.Columns)
+                {
+                    dict[col.ColumnName] = (Convert.ToString(row[col]));
+                }
+                list.Add(dict);
+            }
+
+            return list;
+        }
         #endregion
 
         #region "Basic Methods"
@@ -205,9 +223,9 @@ namespace RaoXeAPI.Controllers
                  bool isAsc = CommonMethods.ConvertToBoolean(pData["ordersort"]);
                  string fieldSort = CommonMethods.ConvertToString(pData["fieldsort"]);
                  string orderBy = string.Empty;
-                 if(pData.ContainsKey("parameter"))
+                 if (pData.ContainsKey("parameter"))
                  {
-                    conditionParameters = GetConditionParameters(pData["parameter"] as JObject, ref lstFieldCondition, ref lstDataCondition);
+                     conditionParameters = GetConditionParameters(pData["parameter"] as JObject, ref lstFieldCondition, ref lstDataCondition);
                  }
 
 
@@ -231,20 +249,22 @@ namespace RaoXeAPI.Controllers
                      lstFieldSearch = this.FieldSearch.ToList<string>();
                      lstDataSearch = new List<object> { textSearch };
                  }
-                 return GetTemplateDAL(ViewName).SearchData(from, to, orderBy, FieldSelect, condition, lstFieldSearch, lstDataSearch, lstFieldCondition, lstDataCondition, this.FieldSum);
+                 var dataset = GetTemplateDAL(ViewName).SearchData(from, to, orderBy, FieldSelect, condition, lstFieldSearch, lstDataSearch, lstFieldCondition, lstDataCondition);
+                 return DataTableToJSON(dataset.Tables[0]);
              });
         }
 
         [Route("getdata")]
         [HttpPost]
-        public virtual IActionResult GetData([FromBody] JsonElement pData)
+        public virtual IActionResult GetData([FromBody] JObject pData)
         {
             return Ok(() =>
             {
-                long id = CommonMethods.GetPropertyInt64(pData, "id");
+                long id = CommonMethods.ConvertToInt64(pData["id"]);
                 if (id > 0)
                 {
-                    return GetTemplateDAL(ViewName??TableName).GetDataById(id, FieldSelect, ConditionGetInfo);
+                    var dataset = GetTemplateDAL(ViewName ?? TableName).GetDataById(id, FieldSelect, ConditionGetInfo);
+                    return DataTableToJSON(dataset.Tables[0])[0];
                 }
                 return null;
             });
@@ -259,7 +279,7 @@ namespace RaoXeAPI.Controllers
                 int res = -1;
                 List<long> lstIds = CommonMethods.ConvertToListInt64(pData["ids"].ToString());
                 int status = CommonMethods.ConvertToInt32(pData["status"]);
-                
+
                 if (lstIds != null && lstIds.Count > 0 && status > 0)
                 {
                     string[] lstFieldUpdate = new string[] { "Status" };
@@ -290,13 +310,14 @@ namespace RaoXeAPI.Controllers
 
         [Route("deletedata")]
         [HttpPost]
-        public virtual IActionResult DeleteData([FromBody] JsonElement pData)
+        public virtual IActionResult DeleteData([FromBody] JObject pData)
         {
             return Ok(() =>
             {
                 int res = -1;
-                long[] lstIds = CommonMethods.GetPropertyArrayInt64(pData, "ids");
-                if (lstIds != null && lstIds.Length > 0)
+                List<long> lstIds = CommonMethods.ConvertToListInt64(pData["ids"].ToString());
+
+                if (lstIds != null && lstIds.Count > 0)
                 {
                     DBLibrary.TemplateDAL dal = GetTemplateDAL(this.TableName);
 
@@ -323,7 +344,7 @@ namespace RaoXeAPI.Controllers
                             catch (Exception ex)
                             {
                                 this._dal.TableName = this.TableName;
-                                if (lstIds.Length == 1)
+                                if (lstIds.Count == 1)
                                 {
                                     throw new Exception(ex.Message);
                                 }
@@ -349,10 +370,10 @@ namespace RaoXeAPI.Controllers
             return Ok(() =>
             {
                 long res = 0;
-              
-                if (pListData != null && pListData.Count > 0 )
+
+                if (pListData != null && pListData.Count > 0)
                 {
-                   
+
                     List<long> lstIds = new List<long>();
                     foreach (JObject pData in pListData)
                     {
