@@ -26,16 +26,26 @@ public class TokenService : ITokenService
 
     public TokenResponse CreateToken(TokenRequest model)
     {
-        String password = CommonMethods.GetEncryptMD5(model.password);
-        var dataset = _dal.GetAllByQuery($"Select * from public.\"users\" where  (\"phone\" = '{model.username}' OR \"email\" = '{model.username}') AND \"password\" = '{password}'");
-        var users = CommonMethods.ConvertToEntity<User>(dataset);
-        // return null if admin not found
-        if (users.Count == 0) return null;
-        User user = users[0];
-        // authentication successful so generate jwt token
-        var token = GenerateJwtToken(user);
-        _dal.Update(user.id, new string[]{"Token"}, new object[]{token});
-        return new TokenResponse(user, token);
+        try
+        {
+            String password = CommonMethods.GetEncryptMD5(model.password);
+            var dataset = _dal.GetAllByQuery($"Select * from public.\"users\" where  (\"phone\" = '{model.username}' OR \"email\" = '{model.username}') AND \"password\" = '{password}'");
+            var users = CommonMethods.ConvertToEntity<User>(dataset);
+            // return null if admin not found
+            if (users.Count == 0) return null;
+            User user = users[0];
+            // authentication successful so generate jwt token
+            var token = GenerateJwtToken(user);
+            _dal.Update(user.id, new string[] { "Token" }, new object[] { token });
+            return new TokenResponse(user, token);
+        }
+        catch (System.Exception ex)
+        {
+            CommonMethods.WriteLog(ex.Message);
+            throw new Exception(CommonConstants.MESSAGE_USER_NOT_VALID);
+        }
+        
+
     }
 
     public IEnumerable<User> GetAll()
@@ -49,7 +59,7 @@ public class TokenService : ITokenService
     {
         var dataset = _dal.GetDataById(id, Variables.FieldSelectUser);
         var users = CommonMethods.ConvertToEntity<User>(dataset);
-        if(users.Count == 0) return null;
+        if (users.Count == 0) return null;
         return users[0];
     }
 
@@ -62,7 +72,7 @@ public class TokenService : ITokenService
         var key = Encoding.ASCII.GetBytes(CommonConstants.TOKEN_SECURITY_KEY);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[] { new Claim("id", admin.id.ToString())}),
+            Subject = new ClaimsIdentity(new[] { new Claim("id", admin.id.ToString()) }),
             Expires = DateTime.UtcNow.AddDays(CommonConstants.TOKEN_DURATION),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };

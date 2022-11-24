@@ -20,14 +20,9 @@ namespace APIMyMyStore.Controllers
         [HttpPost]
         public IActionResult Token(TokenRequest model)
         {
-            var response = _TokenService.CreateToken(model);
             return Ok(()=>
             {
-                 if (response == null)
-                 {
-                    throw new Exception( CommonConstants.MESSAGE_USER_NOT_VALID);
-                 }
-                return response;
+                return _TokenService.CreateToken(model);
             });
         }
 
@@ -35,10 +30,9 @@ namespace APIMyMyStore.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var admins = _TokenService.GetAll();
             return Ok(()=>
             {
-                return admins;
+                return _TokenService.GetAll();
             });
         }
 

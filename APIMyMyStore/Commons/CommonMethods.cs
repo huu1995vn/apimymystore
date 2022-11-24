@@ -1538,7 +1538,7 @@ namespace APIMyMyStore
             }
         }
 
-      
+
 
         public static int GetInt32ByKey(List<string> pDatas, List<string> pFields, string pFieldName)
         {
@@ -2033,33 +2033,37 @@ namespace APIMyMyStore
             }
         }
 
-        public static T GetEntity<T>(DataRow row) where T : new()
-        {
-            var entity = new T();
-            var properties = typeof(T).GetProperties();
-
-            foreach (var property in properties)
-            {
-                //Get the description attribute
-                var descriptionAttribute = (DescriptionAttribute)property.GetCustomAttributes(typeof(DescriptionAttribute), true).SingleOrDefault();
-                if (descriptionAttribute == null)
-                    continue;
-
-                property.SetValue(entity, row[descriptionAttribute.Description]);
-            }
-
-            return entity;
-        }
+        
 
         public static List<T> ConvertToEntity<T>(DataSet pDataSet) where T : new()
-        {
-            List<T> listData = new List<T>();
-            foreach (DataRow row in pDataSet.Tables[0].Rows)
+        {           
+            if(pDataSet.Tables == null || pDataSet.Tables[0].Rows.Count == 0)
             {
-                listData.Add(GetEntity<T>(row));
+                return new List<T>();
             }
-            return listData;
+            return ConvertToList<T>(pDataSet.Tables[0]);
         }
-       
+        public static List<T> ConvertToList<T>(DataTable dt)
+        {
+            var columnNames = dt.Columns.Cast<DataColumn>()
+                    .Select(c => c.ColumnName)
+                    .ToList();
+            var properties = typeof(T).GetProperties();
+            return dt.AsEnumerable().Select(row =>
+            {
+                var objT = Activator.CreateInstance<T>();
+                foreach (var pro in properties)
+                {
+                    if (columnNames.Contains(pro.Name))
+                    {
+                        System.Reflection.PropertyInfo pI = objT.GetType().GetProperty(pro.Name);
+                        pro.SetValue(objT, row[pro.Name] == DBNull.Value ? null : Convert.ChangeType(row[pro.Name], pI.PropertyType));
+                    }
+                }
+                return objT;
+            }).ToList();
+        }
+
+
     }
 }

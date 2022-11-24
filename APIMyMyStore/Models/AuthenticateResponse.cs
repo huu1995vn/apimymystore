@@ -11,12 +11,12 @@ public class TokenResponse
     public string token { get; set; }
 
 
-    public TokenResponse(User admin, string ptoken)
+    public TokenResponse(User puser, string ptoken)
     {
-        id = admin.id;
-        email = admin.email;
-        phone = admin.phone;
-        name = admin.name;
+        id = puser.id;
+        email = puser.email;
+        phone = puser.phone;
+        name = puser.name;
         token = ptoken;
     }
 }
