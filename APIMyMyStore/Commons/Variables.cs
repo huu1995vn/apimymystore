@@ -11,6 +11,7 @@ namespace APIMyMyStore
     {
         public static string ConnectionSQL = string.Empty;
         public static string FieldSelectUser = "name, phone, email, address, createDate";
+        public static string FieldSelectCustomer = "name, phone, email, address, createDate";
 
     }
 }

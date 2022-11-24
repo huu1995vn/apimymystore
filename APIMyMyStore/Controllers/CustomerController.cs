@@ -12,6 +12,8 @@ namespace APIMyMyStore.Controllers
         protected override string ViewName => "customers";
 
         protected override string OrderByGrid => "id ASC";
+        
+        protected override string FieldSelect => Variables.FieldSelectCustomer;
 
         protected override List<string> FieldInsert => new List<string> { "name", "phone", "email", "address" };
 
