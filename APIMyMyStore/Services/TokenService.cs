@@ -20,14 +20,14 @@ public class TokenService : ITokenService
 
     public TokenService()
     {
-        _dal = new DBLibrary.TemplateDAL(Variables.ConnectionSQL, "Users");
+        _dal = new DBLibrary.TemplateDAL(Variables.ConnectionSQL, "users");
 
     }
 
     public TokenResponse CreateToken(TokenRequest model)
     {
         String password = CommonMethods.GetEncryptMD5(model.password);
-        var dataset = _dal.GetAllByQuery($"Select * from public.\"Users\" where  (\"phome\" = '{model.username}' OR \"email\" = '{model.username}') AND \"Password\" = '{password}'");
+        var dataset = _dal.GetAllByQuery($"Select * from public.\"users\" where  (\"phone\" = '{model.username}' OR \"email\" = '{model.username}') AND \"password\" = '{password}'");
         var users = CommonMethods.ConvertToEntity<User>(dataset);
         // return null if admin not found
         if (users.Count == 0) return null;
