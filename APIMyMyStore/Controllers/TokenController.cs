@@ -3,6 +3,7 @@ using APIMyMyStore.Services;
 using APIMyMyStore.Models;
 using APIMyMyStore.Helpers;
 using RaoXeAPI.Controllers;
+using Newtonsoft.Json.Linq;
 
 namespace APIMyMyStore.Controllers
 {
@@ -17,12 +18,42 @@ namespace APIMyMyStore.Controllers
             _TokenService = TokenService;
         }
 
+        [Route("login")]
         [HttpPost]
-        public IActionResult Token(TokenRequest model)
+        public IActionResult Login([FromBody] Dictionary<string, string> data)
         {
-            return Ok(()=>
+            return Ok(() =>
             {
-                return _TokenService.CreateToken(model);
+                String password = CommonMethods.GetEncryptMD5(data["password"]);
+                String username = CommonMethods.ConvertToString(data["username"]);
+
+                return _TokenService.CreateToken(username, username);
+            });
+        }
+
+        [Route("refreshlogin")]
+        [Authorize]
+        public IActionResult RefreshToken([FromBody] Dictionary<string, string> data)
+        {
+
+            return Ok(() =>
+            {
+                string token = Request.Headers[CommonConstants.TOKEN_HEADER_NAME].ToString();
+                token = token.Replace("Bearer ", "").Replace("bearer ", "");
+                return _TokenService.RefreshToken(token);
+            });
+        }
+
+        [Route("logout")]
+        [Authorize]
+        public IActionResult Logout([FromBody] Dictionary<string, string> data)
+        {
+            return Ok(() =>
+            {
+                string token = Request.Headers[CommonConstants.TOKEN_HEADER_NAME].ToString();
+                token = token.Replace("Bearer ", "").Replace("bearer ", "");
+                return _TokenService.RemoveToken(token);
+
             });
         }
 
@@ -30,7 +61,7 @@ namespace APIMyMyStore.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(()=>
+            return Ok(() =>
             {
                 return _TokenService.GetAll();
             });

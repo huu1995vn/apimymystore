@@ -8,7 +8,9 @@ using APIMyMyStore.Entites;
 namespace APIMyMyStore.Services;
 public interface ITokenService
 {
-    TokenResponse CreateToken(TokenRequest model);
+    TokenResponse CreateToken(string pusername, string ppasswordmp5);
+    TokenResponse RefreshToken(string token);
+    int RemoveToken(string token);
     IEnumerable<User> GetAll();
     User GetById(int id);
 }
@@ -24,12 +26,11 @@ public class TokenService : ITokenService
 
     }
 
-    public TokenResponse CreateToken(TokenRequest model)
+    public TokenResponse CreateToken(string username, string password)
     {
         try
         {
-            String password = CommonMethods.GetEncryptMD5(model.password);
-            var dataset = _dal.GetAllByQuery($"Select * from public.\"users\" where  (\"phone\" = '{model.username}' OR \"email\" = '{model.username}') AND \"password\" = '{password}'");
+            var dataset = _dal.GetAllByQuery($"Select * from public.\"users\" where  (\"phone\" = '{username}' OR \"email\" = '{username}') AND \"password\" = '{password}'");
             var users = CommonMethods.ConvertToEntity<User>(dataset);
             // return null if admin not found
             if (users.Count == 0) return null;
@@ -38,6 +39,51 @@ public class TokenService : ITokenService
             var token = GenerateJwtToken(user);
             _dal.Update(user.id, new string[] { "Token" }, new object[] { token });
             return new TokenResponse(user, token);
+        }
+        catch (System.Exception ex)
+        {
+            CommonMethods.WriteLog(ex.Message);
+            throw new Exception(CommonConstants.MESSAGE_USER_NOT_VALID);
+        }
+        
+
+    }
+
+    public TokenResponse RefreshToken(string pToken)
+    {
+        try
+        {
+            var dataset = _dal.GetAllByQuery($"Select * from public.\"users\" where \"token\" = '{pToken}'");
+            var users = CommonMethods.ConvertToEntity<User>(dataset);
+            // return null if admin not found
+            if (users.Count == 0) return null;
+            User user = users[0];
+            // authentication successful so generate jwt token
+            var token = GenerateJwtToken(user);
+            _dal.Update(user.id, new string[] { "Token" }, new object[] { token });
+            return new TokenResponse(user, token);
+        }
+        catch (System.Exception ex)
+        {
+            CommonMethods.WriteLog(ex.Message);
+            throw new Exception(CommonConstants.MESSAGE_USER_NOT_VALID);
+        }
+        
+
+    }
+
+     public int RemoveToken(string pToken)
+    {
+        try
+        {
+            var dataset = _dal.GetAllByQuery($"Select * from public.\"users\" where \"token\" = '{pToken}'");
+            var users = CommonMethods.ConvertToEntity<User>(dataset);
+            // return null if admin not found
+            if (users.Count == 0) return -1;
+            User user = users[0];
+            // authentication successful so generate jwt token
+            var token = GenerateJwtToken(user);
+            return _dal.Update(user.id, new string[] { "Token" }, new object[] { string.Empty });
         }
         catch (System.Exception ex)
         {
