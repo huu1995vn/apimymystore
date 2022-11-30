@@ -8,8 +8,8 @@ using APIMyMyStore.Entites;
 namespace APIMyMyStore.Services;
 public interface ITokenService
 {
-    TokenResponse CreateToken(string pusername, string ppasswordmp5);
-    TokenResponse RefreshToken(string token);
+    String CreateToken(string pusername, string ppasswordmp5);
+    String RefreshToken(string token);
     int RemoveToken(string token);
     IEnumerable<User> GetAll();
     User GetById(int id);
@@ -26,7 +26,7 @@ public class TokenService : ITokenService
 
     }
 
-    public TokenResponse CreateToken(string username, string password)
+    public string CreateToken(string username, string password)
     {
         try
         {
@@ -41,7 +41,7 @@ public class TokenService : ITokenService
             // authentication successful so generate jwt token
             var token = GenerateJwtToken(user);
             _dal.Update(user.id, new string[] { "Token" }, new object[] { token });
-            return new TokenResponse(user, token);
+            return token;
         }
         catch (System.Exception ex)
         {
@@ -52,7 +52,7 @@ public class TokenService : ITokenService
 
     }
 
-    public TokenResponse RefreshToken(string pToken)
+    public String RefreshToken(string pToken)
     {
         try
         {
@@ -65,7 +65,7 @@ public class TokenService : ITokenService
             // authentication successful so generate jwt token
             var token = GenerateJwtToken(user);
             _dal.Update(user.id, new string[] { "Token" }, new object[] { token });
-            return new TokenResponse(user, token);
+            return token;
         }
         catch (System.Exception ex)
         {
@@ -115,14 +115,20 @@ public class TokenService : ITokenService
 
     // helper methods
 
-    private string GenerateJwtToken(User admin)
+    private string GenerateJwtToken(User user)
     {
         // generate token that is valid for 7 days
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(CommonConstants.TOKEN_SECURITY_KEY);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[] { new Claim("id", admin.id.ToString()) }),
+            Subject = new ClaimsIdentity(new[] { 
+            new Claim("id", user.id.ToString()),
+            new Claim("name", user.name.ToString()),
+            new Claim("email", user.email.ToString()),
+            new Claim("status", user.status.ToString()),
+            new Claim("createdate", user.createdate.ToString()) 
+            }),
             Expires = DateTime.UtcNow.AddDays(CommonConstants.TOKEN_DURATION),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
