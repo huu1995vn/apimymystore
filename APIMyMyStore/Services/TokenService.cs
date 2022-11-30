@@ -62,7 +62,6 @@ public class TokenService : ITokenService
             if (users.Count == 0) throw new Exception("Tài khoản hoặc mật khẩu không hợp lệ");
             User user = users[0];
             if (user.status != null) throw new Exception("Tài khoản đã bị khóa");
-
             // authentication successful so generate jwt token
             var token = GenerateJwtToken(user);
             _dal.Update(user.id, new string[] { "Token" }, new object[] { token });
