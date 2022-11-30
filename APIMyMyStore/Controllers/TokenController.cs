@@ -24,10 +24,9 @@ namespace APIMyMyStore.Controllers
         {
             return Ok(() =>
             {
-                String password = CommonMethods.GetEncryptMD5(data["password"]);
                 String username = CommonMethods.ConvertToString(data["username"]);
-
-                return _TokenService.CreateToken(username, username);
+                String password = CommonMethods.GetEncryptMD5(data["password"]);
+                return _TokenService.CreateToken(username, password);
             });
         }
 
