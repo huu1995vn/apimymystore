@@ -33,10 +33,10 @@ public class TokenService : ITokenService
             var dataset = _dal.GetAllByQuery($"Select * from public.\"users\" where  (\"phone\" = '{username}' OR \"email\" = '{username}') AND \"password\" = '{password}'");
             var users = CommonMethods.ConvertToEntity<User>(dataset);
             // return null if admin not found
-            if (users.Count == 0) throw new Exception("Tài khoản hoặc mật khẩu không hợp lệ");
+            if (users.Count == 0) throw new Exception(CommonConstants.MESSAGE_LOGIN_FAIL);
 
             User user = users[0];
-            if (user.status != null) throw new Exception("Tài khoản đã bị khóa");
+            if (user.status != null) throw new Exception(CommonConstants.MESSAGE_USER_NOT_VALID);
 
             // authentication successful so generate jwt token
             var token = GenerateJwtToken(user);
@@ -59,9 +59,9 @@ public class TokenService : ITokenService
             var dataset = _dal.GetAllByQuery($"Select * from public.\"users\" where \"token\" = '{pToken}' AND \"status\" = 1");
             var users = CommonMethods.ConvertToEntity<User>(dataset);
             // return null if admin not found
-            if (users.Count == 0) throw new Exception("Tài khoản hoặc mật khẩu không hợp lệ");
+            if (users.Count == 0) throw new Exception(CommonConstants.MESSAGE_LOGIN_FAIL);
             User user = users[0];
-            if (user.status != null) throw new Exception("Tài khoản đã bị khóa");
+            if (user.status != null) throw new Exception(CommonConstants.MESSAGE_USER_NOT_VALID);
             // authentication successful so generate jwt token
             var token = GenerateJwtToken(user);
             _dal.Update(user.id, new string[] { "Token" }, new object[] { token });

@@ -68,6 +68,7 @@ namespace APIMyMyStore
         public const string MESSAGE_TOKEN_EXPIRED = "Token hết hạn !";
 
         // MESSAGE USER
+
         public const string MESSAGE_USER_NOT_VALID = "Tài khoản tạm khóa hoặc đã bị xóa";
         public const string MESSAGE_USER_NOT_EXIST = "Tài khoản không tồn tại";
         public const string MESSAGE_USER_NOT_PERMISSON = "Bạn không có quyền thay đổi thông tin này!";
