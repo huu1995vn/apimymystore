@@ -30,10 +30,11 @@ public class TokenService : ITokenService
     {
         try
         {
-            var dataset = _dal.GetAllByQuery($"Select * from public.\"users\" where  (\"phone\" = '{username}' OR \"email\" = '{username}') AND \"password\" = '{password}'");
+            var dataset = _dal.GetAllByQuery($"Select * from public.\"users\" where  (\"phone\" = '{username}' OR \"email\" = '{username}') AND \"password\" = '{password}' AND \"status\" = 1");
             var users = CommonMethods.ConvertToEntity<User>(dataset);
+
             // return null if admin not found
-            if (users.Count == 0) return null;
+            if (users.Count == 0) throw new Exception("Không tìm thấy tài khoản hoặc đã bị khóa");
             User user = users[0];
             // authentication successful so generate jwt token
             var token = GenerateJwtToken(user);
@@ -53,10 +54,10 @@ public class TokenService : ITokenService
     {
         try
         {
-            var dataset = _dal.GetAllByQuery($"Select * from public.\"users\" where \"token\" = '{pToken}'");
+            var dataset = _dal.GetAllByQuery($"Select * from public.\"users\" where \"token\" = '{pToken}' AND \"status\" = 1");
             var users = CommonMethods.ConvertToEntity<User>(dataset);
             // return null if admin not found
-            if (users.Count == 0) return null;
+            if (users.Count == 0) throw new Exception("Không tìm thấy tài khoản hoặc đã bị khóa");
             User user = users[0];
             // authentication successful so generate jwt token
             var token = GenerateJwtToken(user);
