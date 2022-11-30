@@ -124,9 +124,10 @@ public class TokenService : ITokenService
         {
             Subject = new ClaimsIdentity(new[] { 
             new Claim("id", user.id.ToString()),
-            new Claim("name", user.name.ToString()),
-            new Claim("email", user.email.ToString()),
-            new Claim("status", user.status.ToString()),
+            new Claim("name", user.name!.ToString()),
+            new Claim("email", user.email!.ToString()),
+            new Claim("status", user.status!.ToString()),
+            new Claim("image", user.status!.ToString()),
             new Claim("createdate", user.createdate.ToString()) 
             }),
             Expires = DateTime.UtcNow.AddDays(CommonConstants.TOKEN_DURATION),
