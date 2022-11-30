@@ -31,13 +31,17 @@ namespace APIMyMyStore.Controllers
         }
 
         [Route("refreshlogin")]
-        [Authorize]
+        // [Authorize]
         public IActionResult RefreshToken([FromBody] Dictionary<string, string> data)
         {
 
             return Ok(() =>
             {
                 string token = Request.Headers[CommonConstants.TOKEN_HEADER_NAME].ToString();
+                if(!string.IsNullOrEmpty(token))
+                {
+                    throw new Exception("Phiên làm việc đã hết. Vui lòng đăng nhập lại");
+                }
                 token = token.Replace("Bearer ", "").Replace("bearer ", "");
                 return _TokenService.RefreshToken(token);
             });
@@ -50,9 +54,12 @@ namespace APIMyMyStore.Controllers
             return Ok(() =>
             {
                 string token = Request.Headers[CommonConstants.TOKEN_HEADER_NAME].ToString();
+                if(!string.IsNullOrEmpty(token))
+                {
+                    throw new Exception("Phiên làm việc đã hết. Vui lòng đăng nhập lại");
+                }
                 token = token.Replace("Bearer ", "").Replace("bearer ", "");
                 return _TokenService.RemoveToken(token);
-
             });
         }
 
