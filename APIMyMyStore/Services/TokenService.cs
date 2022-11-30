@@ -128,6 +128,7 @@ public class TokenService : ITokenService
             new Claim("email", user.email!.ToString()),
             new Claim("status", user.status!.ToString()),
             new Claim("image", user.status!.ToString()),
+            new Claim("address", user.address!.ToString()),
             new Claim("createdate", user.createdate.ToString()) 
             }),
             Expires = DateTime.UtcNow.AddDays(CommonConstants.TOKEN_DURATION),
