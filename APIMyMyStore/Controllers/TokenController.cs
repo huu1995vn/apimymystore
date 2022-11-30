@@ -38,9 +38,9 @@ namespace APIMyMyStore.Controllers
             return Ok(() =>
             {
                 string token = Request.Headers[CommonConstants.TOKEN_HEADER_NAME].ToString();
-                if(!string.IsNullOrEmpty(token))
+                if(string.IsNullOrEmpty(token))
                 {
-                    throw new Exception("Phiên làm việc đã hết. Vui lòng đăng nhập lại");
+                    throw new Exception(CommonConstants.MESSAGE_TOKEN_INVALID);
                 }
                 token = token.Replace("Bearer ", "").Replace("bearer ", "");
                 return _TokenService.RefreshToken(token);
@@ -54,9 +54,9 @@ namespace APIMyMyStore.Controllers
             return Ok(() =>
             {
                 string token = Request.Headers[CommonConstants.TOKEN_HEADER_NAME].ToString();
-                if(!string.IsNullOrEmpty(token))
+                if(string.IsNullOrEmpty(token))
                 {
-                    throw new Exception("Phiên làm việc đã hết. Vui lòng đăng nhập lại");
+                    throw new Exception(CommonConstants.MESSAGE_TOKEN_INVALID);
                 }
                 token = token.Replace("Bearer ", "").Replace("bearer ", "");
                 return _TokenService.RemoveToken(token);
