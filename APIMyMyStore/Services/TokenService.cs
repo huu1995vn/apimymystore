@@ -36,7 +36,7 @@ public class TokenService : ITokenService
             if (users.Count == 0) throw new Exception(CommonConstants.MESSAGE_LOGIN_FAIL);
 
             User user = users[0];
-            if (user.status != null) throw new Exception(CommonConstants.MESSAGE_USER_NOT_VALID);
+            if (user.status != 1) throw new Exception(CommonConstants.MESSAGE_USER_NOT_VALID);
 
             // authentication successful so generate jwt token
             var token = GenerateJwtToken(user);
@@ -56,12 +56,12 @@ public class TokenService : ITokenService
     {
         try
         {
-            var dataset = _dal.GetAllByQuery($"Select * from public.\"users\" where \"token\" = '{pToken}' AND \"status\" = 1");
+            var dataset = _dal.GetAllByQuery($"Select * from public.\"users\" where \"token\" = '{pToken}'");
             var users = CommonMethods.ConvertToEntity<User>(dataset);
             // return null if admin not found
             if (users.Count == 0) throw new Exception(CommonConstants.MESSAGE_LOGIN_FAIL);
             User user = users[0];
-            if (user.status != null) throw new Exception(CommonConstants.MESSAGE_USER_NOT_VALID);
+            if (user.status != 1) throw new Exception(CommonConstants.MESSAGE_USER_NOT_VALID);
             // authentication successful so generate jwt token
             var token = GenerateJwtToken(user);
             _dal.Update(user.id, new string[] { "Token" }, new object[] { token });
