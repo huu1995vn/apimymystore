@@ -10,6 +10,7 @@ namespace APIMyMyStore.Entites
         public string password { get; set; }
         public DateTime? updatedate { get; set; }
         public DateTime createdate { get; set; }
+        public int status { get; set; }
         public string token { get; set; }
 
     }

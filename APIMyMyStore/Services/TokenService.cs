@@ -30,12 +30,14 @@ public class TokenService : ITokenService
     {
         try
         {
-            var dataset = _dal.GetAllByQuery($"Select * from public.\"users\" where  (\"phone\" = '{username}' OR \"email\" = '{username}') AND \"password\" = '{password}' AND \"status\" = 1");
+            var dataset = _dal.GetAllByQuery($"Select * from public.\"users\" where  (\"phone\" = '{username}' OR \"email\" = '{username}') AND \"password\" = '{password}'");
             var users = CommonMethods.ConvertToEntity<User>(dataset);
-
             // return null if admin not found
-            if (users.Count == 0) throw new Exception("Không tìm thấy tài khoản hoặc đã bị khóa");
+            if (users.Count == 0) throw new Exception("Tài khoản hoặc mật khẩu không hợp lệ");
+
             User user = users[0];
+            if (user.status != null) throw new Exception("Tài khoản đã bị khóa");
+
             // authentication successful so generate jwt token
             var token = GenerateJwtToken(user);
             _dal.Update(user.id, new string[] { "Token" }, new object[] { token });
@@ -46,7 +48,7 @@ public class TokenService : ITokenService
             CommonMethods.WriteLog(ex.Message);
             throw new Exception(CommonConstants.MESSAGE_USER_NOT_VALID);
         }
-        
+
 
     }
 
@@ -57,8 +59,10 @@ public class TokenService : ITokenService
             var dataset = _dal.GetAllByQuery($"Select * from public.\"users\" where \"token\" = '{pToken}' AND \"status\" = 1");
             var users = CommonMethods.ConvertToEntity<User>(dataset);
             // return null if admin not found
-            if (users.Count == 0) throw new Exception("Không tìm thấy tài khoản hoặc đã bị khóa");
+            if (users.Count == 0) throw new Exception("Tài khoản hoặc mật khẩu không hợp lệ");
             User user = users[0];
+            if (user.status != null) throw new Exception("Tài khoản đã bị khóa");
+
             // authentication successful so generate jwt token
             var token = GenerateJwtToken(user);
             _dal.Update(user.id, new string[] { "Token" }, new object[] { token });
@@ -69,11 +73,11 @@ public class TokenService : ITokenService
             CommonMethods.WriteLog(ex.Message);
             throw new Exception(CommonConstants.MESSAGE_USER_NOT_VALID);
         }
-        
+
 
     }
 
-     public int RemoveToken(string pToken)
+    public int RemoveToken(string pToken)
     {
         try
         {
@@ -91,7 +95,7 @@ public class TokenService : ITokenService
             CommonMethods.WriteLog(ex.Message);
             throw new Exception(CommonConstants.MESSAGE_USER_NOT_VALID);
         }
-        
+
 
     }
 
