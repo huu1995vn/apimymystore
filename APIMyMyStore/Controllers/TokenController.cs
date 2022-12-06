@@ -17,8 +17,8 @@ namespace APIMyMyStore.Controllers
             return Ok(() =>
             {
                 String username = CommonMethods.ConvertToString(data["username"]);
-                String password = CommonMethods.GetEncryptMD5(data["password"]);
-                return new TokenService().CreateToken(username, password);
+                String password = CommonMethods.ConvertToString(data["password"]);
+                return CreateToken(username, password);
             });
         }
 
@@ -29,7 +29,7 @@ namespace APIMyMyStore.Controllers
 
             return Ok(() =>
             {
-                return new TokenService().RefreshToken(Token());
+                return RefreshToken();
             });
         }
 
@@ -39,7 +39,7 @@ namespace APIMyMyStore.Controllers
         {
             return Ok(() =>
             {
-                return new TokenService().RemoveToken(Token());
+                return RemoveToken();
             });
         }
 

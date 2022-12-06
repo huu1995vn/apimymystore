@@ -86,7 +86,7 @@ namespace APIMyMyStore.Controllers
                 {
                     throw new Exception(CommonConstants.MESSAGE_DATA_NOT_VALID);
                 }
-                long pId = new TokenService().GetTokenInfo(Token()).id;
+                long pId = GetTokenInfo().id;
                 return GetTemplateDAL(ViewName).Update(pId, new string[]{"image"}, new object[]{image});
 
              });

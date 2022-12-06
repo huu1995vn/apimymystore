@@ -44,7 +44,7 @@ namespace RaoXeAPI.Controllers
         public Action<System.Data.DataSet> ConvertDataSet = null;
 
         #endregion
-      
+
         #region "Common Methods"
 
         protected DBLibrary.TemplateDAL GetTemplateDAL()
@@ -68,7 +68,7 @@ namespace RaoXeAPI.Controllers
             }
             return this._dal;
         }
-       
+
 
         [Route("OK")]
         public OkObjectResult Ok(Func<object> pMethod)
@@ -84,7 +84,7 @@ namespace RaoXeAPI.Controllers
             }
             return base.Ok(res);
         }
-        
+
         protected List<object> GetDataListToSave(JObject pData, List<string> pFields)
         {
             string fieldName;
@@ -436,6 +436,33 @@ namespace RaoXeAPI.Controllers
             token = token.Replace("Bearer ", "").Replace("bearer ", "");
             return token;
         }
+
+        protected int RemoveToken()
+        {
+            return new TokenService().RemoveToken(Token());
+
+        }
+        protected string RefreshToken()
+        {
+            return new TokenService().RefreshToken(Token());
+
+        }
+
+        protected string CreateToken(string username, string password)
+        {
+
+            return new TokenService().CreateToken(username, password);
+
+        }
+
+        protected User GetTokenInfo()
+        {
+
+            return new TokenService().GetTokenInfo(Token());
+
+        }
+
+
 
     }
 }
