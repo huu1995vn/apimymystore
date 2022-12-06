@@ -2,8 +2,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using APIMyMyStore.Models;
 using APIMyMyStore.Entites;
+using Newtonsoft.Json;
 
 namespace APIMyMyStore.Services;
 public interface ITokenService
@@ -13,6 +13,8 @@ public interface ITokenService
     int RemoveToken(string token);
     IEnumerable<User> GetAll();
     User GetById(int id);
+    User GetTokenInfo(string token);
+
 }
 
 public class TokenService : ITokenService
@@ -122,19 +124,44 @@ public class TokenService : ITokenService
         var key = Encoding.ASCII.GetBytes(CommonConstants.TOKEN_SECURITY_KEY);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[] { 
+            Subject = new ClaimsIdentity(new[] {
             new Claim("id", user.id.ToString()),
             new Claim("name", user.name!.ToString()),
             new Claim("email", user.email!.ToString()),
             new Claim("status", user.status!.ToString()),
             new Claim("image", user.status!.ToString()),
             new Claim("address", user.address!.ToString()),
-            new Claim("createdate", user.createdate.ToString()) 
+            new Claim("createdate", user.createdate.ToString())
             }),
             Expires = DateTime.UtcNow.AddDays(CommonConstants.TOKEN_DURATION),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
+    }
+
+    public User GetTokenInfo(string token)
+    {
+        try
+        {
+            var TokenInfo = new Dictionary<string, string>();
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(token);
+            var claims = jwtSecurityToken.Claims.ToList();
+
+            foreach (var claim in claims)
+            {
+
+                TokenInfo.Add(claim.Type, claim.Value);
+            }
+
+            return JsonConvert.DeserializeObject<User>(CommonMethods.ConvertToJsonString(TokenInfo));
+        }
+        catch (System.Exception)
+        {
+
+            return null;
+        }
+
     }
 }

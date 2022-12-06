@@ -96,6 +96,20 @@ namespace APIMyMyStore
             }
         }
 
+        public static bool IsUrl(this string url)
+        {
+            try
+            {
+                Uri uriResult;
+                return Uri.TryCreate(url, UriKind.Absolute, out uriResult)
+    && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+        }
+
         public static T PickRandom<T>(this IEnumerable<T> source)
         {
             return source.PickRandom(1).Single();
@@ -111,7 +125,7 @@ namespace APIMyMyStore
             return source.OrderBy(x => Guid.NewGuid());
         }
 
-        
+
 
 
     }

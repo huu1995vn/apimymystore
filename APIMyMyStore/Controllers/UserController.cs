@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using APIMyMyStore.Helpers;
+using APIMyMyStore.Services;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using RaoXeAPI.Controllers;
 
@@ -8,6 +10,10 @@ namespace APIMyMyStore.Controllers
     [ApiController]
     public class UserController : CommonController
     {
+        public UserController(ITokenService TokenService) : base(TokenService)
+        {
+        }
+
         protected override string TableName => "users";
 
         protected override string ViewName => "users";
@@ -20,8 +26,10 @@ namespace APIMyMyStore.Controllers
 
         protected override List<string> FieldUpdate => new List<string> { "name", "address" };
 
-      [Route("loaddata")]
+        [Route("loaddata")]
         [HttpPost]
+        [Authorize]
+
         public override IActionResult LoadData([FromBody] JObject pData)
         {
             return Ok(() =>
@@ -68,5 +76,24 @@ namespace APIMyMyStore.Controllers
                  return DataTableToJSON(dataset.Tables[0]);
              });
         }
+
+        [Route("updateavatar")]
+        [HttpPost]
+        [Authorize]
+        public IActionResult UpdateAvatar([FromBody] JObject pData)
+        {
+            return Ok(() =>
+             {
+                string image = CommonMethods.ConvertToString(pData["image"]).Trim();
+                if(!image.IsUrl())
+                {
+                    throw new Exception(CommonConstants.MESSAGE_DATA_NOT_VALID);
+                }
+                long pId = GetTokenInfo().id;
+                return GetTemplateDAL(ViewName).Update(pId, new string[]{"image"}, new object[]{image});
+
+             });
+        }
+    
     }
 }

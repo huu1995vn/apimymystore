@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using APIMyMyStore.Services;
-using APIMyMyStore.Models;
 using APIMyMyStore.Helpers;
 using RaoXeAPI.Controllers;
 using Newtonsoft.Json.Linq;
@@ -11,11 +10,8 @@ namespace APIMyMyStore.Controllers
     [ApiController]
     public class TokenController : CommonController
     {
-        private ITokenService _TokenService;
-
-        public TokenController(ITokenService TokenService)
+        public TokenController(ITokenService pTokenService) : base(pTokenService)
         {
-            _TokenService = TokenService;
         }
 
         [Route("login")]
@@ -25,25 +21,18 @@ namespace APIMyMyStore.Controllers
             return Ok(() =>
             {
                 String username = CommonMethods.ConvertToString(data["username"]);
-                String password = CommonMethods.GetEncryptMD5(data["password"]);
-                return _TokenService.CreateToken(username, password);
+                String password = CommonMethods.ConvertToString(data["password"]);
+                return CreateToken(username, password);
             });
         }
 
         [Route("refreshlogin")]
-        // [Authorize]
         public IActionResult RefreshToken([FromBody] Dictionary<string, string> data)
         {
 
             return Ok(() =>
             {
-                string token = Request.Headers[CommonConstants.TOKEN_HEADER_NAME].ToString();
-                if(string.IsNullOrEmpty(token))
-                {
-                    throw new Exception(CommonConstants.MESSAGE_TOKEN_INVALID);
-                }
-                token = token.Replace("Bearer ", "").Replace("bearer ", "");
-                return _TokenService.RefreshToken(token);
+                return RefreshToken();
             });
         }
 
@@ -53,25 +42,11 @@ namespace APIMyMyStore.Controllers
         {
             return Ok(() =>
             {
-                string token = Request.Headers[CommonConstants.TOKEN_HEADER_NAME].ToString();
-                if(string.IsNullOrEmpty(token))
-                {
-                    throw new Exception(CommonConstants.MESSAGE_TOKEN_INVALID);
-                }
-                token = token.Replace("Bearer ", "").Replace("bearer ", "");
-                return _TokenService.RemoveToken(token);
+                return RemoveToken();
             });
         }
 
-        [Authorize]
-        [HttpGet]
-        public IActionResult GetAll()
-        {
-            return Ok(() =>
-            {
-                return _TokenService.GetAll();
-            });
-        }
+       
 
     }
 }

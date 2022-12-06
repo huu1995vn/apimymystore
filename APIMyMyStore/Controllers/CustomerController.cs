@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using APIMyMyStore.Services;
+using Microsoft.AspNetCore.Mvc;
 using RaoXeAPI.Controllers;
 
 namespace APIMyMyStore.Controllers
@@ -7,6 +8,10 @@ namespace APIMyMyStore.Controllers
     [ApiController]
     public class CustomerController : CommonController
     {
+        public CustomerController(ITokenService TokenService) : base(TokenService)
+        {
+        }
+
         protected override string TableName => "customers";
 
         protected override string ViewName => "customers";

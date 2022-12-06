@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using APIMyMyStore;
+using APIMyMyStore.Entites;
+using APIMyMyStore.Helpers;
+using APIMyMyStore.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
@@ -14,6 +17,7 @@ namespace RaoXeAPI.Controllers
     [ApiController]
     public class CommonController : ControllerBase
     {
+        private ITokenService _TokenService;
 
         #region "Variables"
         protected virtual string OrderByGrid => "Id DESC";
@@ -42,7 +46,10 @@ namespace RaoXeAPI.Controllers
         public Action<System.Data.DataSet> ConvertDataSet = null;
 
         #endregion
-
+        public CommonController(ITokenService pTokenService)
+        {
+            _TokenService = pTokenService;
+        }
         #region "Common Methods"
 
         protected DBLibrary.TemplateDAL GetTemplateDAL()
@@ -65,6 +72,34 @@ namespace RaoXeAPI.Controllers
                 this._dal.TableName = pTableName;
             }
             return this._dal;
+        }
+        public string CreateToken(string pusername, string password)
+        {
+            password = CommonMethods.GetEncryptMD5(password);
+            return _TokenService.CreateToken(pusername, password);
+        }
+
+        public string RefreshToken()
+        {
+            return _TokenService.RefreshToken(Token());
+        }
+
+        public int RemoveToken()
+        {
+            return _TokenService.RemoveToken(Token());
+        }
+
+
+        public string Token()
+        {
+            string token = CommonMethods.ConvertToString(Request.Headers[CommonConstants.TOKEN_HEADER_NAME]);
+            token = token.Replace("Bearer ", "").Replace("bearer ", "");
+            return token;
+        }
+
+        public User GetTokenInfo()
+        {
+            return _TokenService.GetTokenInfo(Token());
         }
 
         [Route("OK")]
@@ -207,6 +242,7 @@ namespace RaoXeAPI.Controllers
 
         [Route("loaddata")]
         [HttpPost]
+        [Authorize]
         public virtual IActionResult LoadData([FromBody] JObject pData)
         {
             return Ok(() =>
@@ -256,6 +292,7 @@ namespace RaoXeAPI.Controllers
 
         [Route("getdata")]
         [HttpPost]
+        [Authorize]
         public virtual IActionResult GetData([FromBody] JObject pData)
         {
             return Ok(() =>
@@ -272,6 +309,7 @@ namespace RaoXeAPI.Controllers
 
         [Route("updatestatus")]
         [HttpPost]
+        [Authorize]
         public virtual IActionResult UpdateStatus([FromBody] JObject pData)
         {
             return Ok(() =>
@@ -292,6 +330,7 @@ namespace RaoXeAPI.Controllers
 
         [Route("updatelock")]
         [HttpPost]
+        [Authorize]
         public virtual IActionResult UpdateLock([FromBody] JObject pData)
         {
             return Ok(() =>
@@ -310,6 +349,7 @@ namespace RaoXeAPI.Controllers
 
         [Route("deletedata")]
         [HttpPost]
+        [Authorize]
         public virtual IActionResult DeleteData([FromBody] JObject pData)
         {
             return Ok(() =>
@@ -365,6 +405,8 @@ namespace RaoXeAPI.Controllers
 
         [Route("savelist")]
         [HttpPost]
+        [Authorize]
+
         public virtual IActionResult SaveDataList([FromBody] List<JObject> pListData)
         {
             return Ok(() =>
@@ -393,6 +435,7 @@ namespace RaoXeAPI.Controllers
 
         [Route("savedata")]
         [HttpPost]
+        [Authorize]
         public virtual IActionResult SaveData([FromBody] JObject pData)
         {
             return Ok(() =>

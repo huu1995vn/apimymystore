@@ -13,7 +13,7 @@ public class AuthorizeAttribute : Attribute, IAuthorizationFilter
         if (user == null)
         {
             // not logged in
-            context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
+            context.Result = new JsonResult(new { message = CommonConstants.MESSAGE_TOKEN_INVALID }) { StatusCode = StatusCodes.Status401Unauthorized };
         }
     }
 }
