@@ -450,7 +450,7 @@ namespace RaoXeAPI.Controllers
 
         protected string CreateToken(string username, string password)
         {
-
+            password = CommonMethods.GetEncryptMD5(password);
             return new TokenService().CreateToken(username, password);
 
         }
