@@ -429,22 +429,27 @@ namespace RaoXeAPI.Controllers
         }
 
         #endregion
+        private string _token = string.Empty;  // Backing store
 
-        protected string Token()
+        public string token
         {
-            string token = CommonMethods.ConvertToString(Request.Headers[CommonConstants.TOKEN_HEADER_NAME]);
-            token = token.Replace("Bearer ", "").Replace("bearer ", "");
-            return token;
+            get => _token;
+            set
+            {
+                string strtoken = CommonMethods.ConvertToString(Request.Headers[CommonConstants.TOKEN_HEADER_NAME]);
+                _token = strtoken.Replace("Bearer ", "").Replace("bearer ", "");
+            }
+
         }
 
         protected int RemoveToken()
         {
-            return new TokenService().RemoveToken(Token());
+            return new TokenService().RemoveToken(token);
 
         }
         protected string RefreshToken()
         {
-            return new TokenService().RefreshToken(Token());
+            return new TokenService().RefreshToken(token);
 
         }
 
@@ -458,7 +463,7 @@ namespace RaoXeAPI.Controllers
         protected User GetTokenInfo()
         {
 
-            return new TokenService().GetTokenInfo(Token());
+            return new TokenService().GetTokenInfo(token);
 
         }
 
