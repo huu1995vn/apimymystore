@@ -17,8 +17,6 @@ namespace RaoXeAPI.Controllers
     [ApiController]
     public class CommonController : ControllerBase
     {
-        private ITokenService _TokenService;
-
         #region "Variables"
         protected virtual string OrderByGrid => "Id DESC";
         protected virtual string FieldSelect => "*";
@@ -46,10 +44,7 @@ namespace RaoXeAPI.Controllers
         public Action<System.Data.DataSet> ConvertDataSet = null;
 
         #endregion
-        public CommonController(ITokenService pTokenService)
-        {
-            _TokenService = pTokenService;
-        }
+      
         #region "Common Methods"
 
         protected DBLibrary.TemplateDAL GetTemplateDAL()
@@ -73,34 +68,7 @@ namespace RaoXeAPI.Controllers
             }
             return this._dal;
         }
-        public string CreateToken(string pusername, string password)
-        {
-            password = CommonMethods.GetEncryptMD5(password);
-            return _TokenService.CreateToken(pusername, password);
-        }
-
-        public string RefreshToken()
-        {
-            return _TokenService.RefreshToken(Token());
-        }
-
-        public int RemoveToken()
-        {
-            return _TokenService.RemoveToken(Token());
-        }
-
-
-        public string Token()
-        {
-            string token = CommonMethods.ConvertToString(Request.Headers[CommonConstants.TOKEN_HEADER_NAME]);
-            token = token.Replace("Bearer ", "").Replace("bearer ", "");
-            return token;
-        }
-
-        public User GetTokenInfo()
-        {
-            return _TokenService.GetTokenInfo(Token());
-        }
+       
 
         [Route("OK")]
         public OkObjectResult Ok(Func<object> pMethod)
@@ -116,8 +84,7 @@ namespace RaoXeAPI.Controllers
             }
             return base.Ok(res);
         }
-
-
+        
         protected List<object> GetDataListToSave(JObject pData, List<string> pFields)
         {
             string fieldName;
@@ -462,6 +429,13 @@ namespace RaoXeAPI.Controllers
         }
 
         #endregion
+
+        protected string Token()
+        {
+            string token = CommonMethods.ConvertToString(Request.Headers[CommonConstants.TOKEN_HEADER_NAME]);
+            token = token.Replace("Bearer ", "").Replace("bearer ", "");
+            return token;
+        }
 
     }
 }

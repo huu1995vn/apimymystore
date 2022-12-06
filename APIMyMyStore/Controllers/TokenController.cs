@@ -10,10 +10,6 @@ namespace APIMyMyStore.Controllers
     [ApiController]
     public class TokenController : CommonController
     {
-        public TokenController(ITokenService pTokenService) : base(pTokenService)
-        {
-        }
-
         [Route("login")]
         [HttpPost]
         public IActionResult Login([FromBody] Dictionary<string, string> data)
@@ -21,18 +17,19 @@ namespace APIMyMyStore.Controllers
             return Ok(() =>
             {
                 String username = CommonMethods.ConvertToString(data["username"]);
-                String password = CommonMethods.ConvertToString(data["password"]);
-                return CreateToken(username, password);
+                String password = CommonMethods.GetEncryptMD5(data["password"]);
+                return new TokenService().CreateToken(username, password);
             });
         }
 
         [Route("refreshlogin")]
+        [HttpPost]
         public IActionResult RefreshToken([FromBody] Dictionary<string, string> data)
         {
 
             return Ok(() =>
             {
-                return RefreshToken();
+                return new TokenService().RefreshToken(Token());
             });
         }
 
@@ -42,7 +39,7 @@ namespace APIMyMyStore.Controllers
         {
             return Ok(() =>
             {
-                return RemoveToken();
+                return new TokenService().RemoveToken(Token());
             });
         }
 

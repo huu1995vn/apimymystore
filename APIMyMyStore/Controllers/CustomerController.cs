@@ -8,10 +8,6 @@ namespace APIMyMyStore.Controllers
     [ApiController]
     public class CustomerController : CommonController
     {
-        public CustomerController(ITokenService TokenService) : base(TokenService)
-        {
-        }
-
         protected override string TableName => "customers";
 
         protected override string ViewName => "customers";

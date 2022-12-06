@@ -10,9 +10,6 @@ namespace APIMyMyStore.Controllers
     [ApiController]
     public class UserController : CommonController
     {
-        public UserController(ITokenService TokenService) : base(TokenService)
-        {
-        }
 
         protected override string TableName => "users";
 
@@ -89,7 +86,7 @@ namespace APIMyMyStore.Controllers
                 {
                     throw new Exception(CommonConstants.MESSAGE_DATA_NOT_VALID);
                 }
-                long pId = GetTokenInfo().id;
+                long pId = new TokenService().GetTokenInfo(Token()).id;
                 return GetTemplateDAL(ViewName).Update(pId, new string[]{"image"}, new object[]{image});
 
              });
