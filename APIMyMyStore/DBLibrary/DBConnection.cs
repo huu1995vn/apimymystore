@@ -98,7 +98,7 @@ namespace DBLibrary
                 NpgsqlDataAdapter adap = new NpgsqlDataAdapter(pNpgsqlCommand);
                 adap.Fill(dsData);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }

@@ -25,7 +25,7 @@ namespace APIMyMyStore
                 FileInfo fi = new FileInfo(filePath);
                 localTime = fi.LastWriteTime;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 res = "GetBuildDateFromAssembly lỗi";
             }
