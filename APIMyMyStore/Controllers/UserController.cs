@@ -91,6 +91,13 @@ namespace APIMyMyStore.Controllers
 
              });
         }
+
+        [Route("checkapi")]
+
+        public string checkapi()
+        {
+            return  "Ok";
+        }
     
     }
 }
