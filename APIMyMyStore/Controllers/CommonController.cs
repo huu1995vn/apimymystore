@@ -433,12 +433,16 @@ namespace RaoXeAPI.Controllers
 
         public string token
         {
-            get => _token;
-            set
-            {
-                string strtoken = CommonMethods.ConvertToString(Request.Headers[CommonConstants.TOKEN_HEADER_NAME]);
+            get {
+                 string strtoken = CommonMethods.ConvertToString(Request.Headers[CommonConstants.TOKEN_HEADER_NAME]);
                 _token = strtoken.Replace("Bearer ", "").Replace("bearer ", "");
+                return _token;
             }
+            // set
+            // {
+            //     string strtoken = CommonMethods.ConvertToString(Request.Headers[CommonConstants.TOKEN_HEADER_NAME]);
+            //     _token = strtoken.Replace("Bearer ", "").Replace("bearer ", "");
+            // }
 
         }
 

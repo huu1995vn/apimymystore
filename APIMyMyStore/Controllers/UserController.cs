@@ -19,7 +19,7 @@ namespace APIMyMyStore.Controllers
 
         protected override string FieldSelect => Variables.FieldSelectUser;
 
-        protected override List<string> FieldInsert => new List<string> { "name", "phone", "email", "address" };
+        protected override List<string> FieldInsert => new List<string> { "name", "image", "phone", "email", "address" };
 
         protected override List<string> FieldUpdate => new List<string> { "name", "address" };
 
@@ -81,7 +81,7 @@ namespace APIMyMyStore.Controllers
         {
             return Ok(() =>
              {
-                string image = CommonMethods.ConvertToString(pData["image"]).Trim();
+                string image = CommonMethods.ConvertToString(pData.GetValue("image").ToString()).Trim();
                 if(!image.IsUrl())
                 {
                     throw new Exception(CommonConstants.MESSAGE_DATA_NOT_VALID);

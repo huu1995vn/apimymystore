@@ -10,7 +10,7 @@ namespace APIMyMyStore
     public class Variables
     {
         public static string ConnectionSQL = "Host=lucky.db.elephantsql.com;Database=rlteyqlo;Username=rlteyqlo;Password=ilTkG2MOYQrcVDtjs27eEKwZq4vRBoNH";
-        public static string FieldSelectUser = "name, phone, email, address, createDate";
+        public static string FieldSelectUser = "name, image, phone, email, address, createDate";
         public static string FieldSelectCustomer = "name, phone, email, address, createDate";
 
     }
