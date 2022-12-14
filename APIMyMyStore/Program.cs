@@ -64,9 +64,9 @@ app.UseAuthorization();
 {
     // global cors policy
      app.UseCors(x => x
+        .AllowAnyOrigin()
         .AllowAnyMethod()
-        .SetIsOriginAllowed(origin => true) // allow any origin
-                .AllowCredentials());
+        .AllowAnyHeader());
     // custom jwt auth middleware
     app.UseMiddleware<JwtMiddleware>();
 
