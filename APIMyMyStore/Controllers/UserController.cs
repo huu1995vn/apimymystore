@@ -1,5 +1,8 @@
 ﻿using APIMyMyStore.Helpers;
 using APIMyMyStore.Services;
+using Firebase.Storage;
+using FirebaseAdmin;
+using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using RaoXeAPI.Controllers;
@@ -94,9 +97,32 @@ namespace APIMyMyStore.Controllers
 
         [Route("checkapi")]
 
-        public string checkapi()
+        public async Task<string> checkapiAsync()
         {
-            return  "Ok";
+            var stream = System.IO.File.Open(@"D:\hinh.jpg", FileMode.Open);
+            var ProjectId = FirebaseAdmin.FirebaseApp.DefaultInstance.Options.ProjectId;
+            //authentication
+            string customToken =  await FirebaseAuth.DefaultInstance.CreateCustomTokenAsync("1");
+
+            // Constructr FirebaseStorage, path to where you want to upload the file and Put it there
+            var task = new FirebaseStorage(
+                 ProjectId+".appspot.com",
+                 new FirebaseStorageOptions
+                 {
+                     AuthTokenAsyncFactory = () => Task.FromResult(customToken),
+                     ThrowOnCancel = true,
+                     
+                 })
+                .Child("image")
+                .Child("1")
+                .PutAsync(stream);
+
+            // Track progress of the upload
+            task.Progress.ProgressChanged += (s, e) => Console.WriteLine($"Progress: {e.Percentage} %");
+
+            // await the task to wait until upload completes and get the download url
+            var downloadUrl = await task;
+            return downloadUrl;
         }
     
     }

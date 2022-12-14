@@ -1,9 +1,14 @@
 using APIMyMyStore;
 using APIMyMyStore.Helpers;
 using APIMyMyStore.Services;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.EntityFrameworkCore;
 
-
+FirebaseApp.Create(new AppOptions()
+{
+    Credential = GoogleCredential.FromFile("firebase-adminsdk.json"),
+});
 var builder = WebApplication.CreateBuilder(args);
 var configurationBuilder = new ConfigurationBuilder()
                             .SetBasePath(builder.Environment.ContentRootPath)
