@@ -84,40 +84,47 @@ namespace APIMyMyStore.Controllers
         {
             return Ok(() =>
              {
-                string image = CommonMethods.ConvertToString(pData.GetValue("image").ToString()).Trim();
-                if(!image.IsUrl())
-                {
-                    throw new Exception(CommonConstants.MESSAGE_DATA_NOT_VALID);
-                }
-                long pId = GetTokenInfo().id;
-                return GetTemplateDAL(ViewName).Update(pId, new string[]{"image"}, new object[]{image});
+                 string image = CommonMethods.ConvertToString(pData.GetValue("image").ToString()).Trim();
+                 if (!image.IsUrl())
+                 {
+                     throw new Exception(CommonConstants.MESSAGE_DATA_NOT_VALID);
+                 }
+                 long pId = GetTokenInfo().id;
+                 return GetTemplateDAL(ViewName).Update(pId, new string[] { "image" }, new object[] { image });
 
              });
         }
+        string CreateTempfilePath()
+        {
+            var filename = $"{Guid.NewGuid()}.tmp";
+            var directoryPath = Path.Combine("temp", "uploads");
+            if (!Directory.Exists(directoryPath)) Directory.CreateDirectory(directoryPath);
 
+            return Path.Combine(directoryPath, filename);
+        }
         [Route("checkapi")]
         [HttpPost]
         public async Task<string> checkapiAsync()
         {
-            // var stream = System.IO.File.Open(@"D:\hinh.jpg", FileMode.Open);
-            // var body = Request.Body;
-
+            string tempfile = CreateTempfilePath();
+            using var stream = System.IO.File.OpenWrite(tempfile);
+            await Request.Body.CopyToAsync(stream);
             var ProjectId = FirebaseAdmin.FirebaseApp.DefaultInstance.Options.ProjectId;
             //authentication
-            string customToken =  await FirebaseAuth.DefaultInstance.CreateCustomTokenAsync("1");
+            string customToken = await FirebaseAuth.DefaultInstance.CreateCustomTokenAsync("1");
 
             // Constructr FirebaseStorage, path to where you want to upload the file and Put it there
             var task = new FirebaseStorage(
-                 ProjectId+".appspot.com",
+                 ProjectId + ".appspot.com",
                  new FirebaseStorageOptions
                  {
                      AuthTokenAsyncFactory = () => Task.FromResult(customToken),
                      ThrowOnCancel = true,
-                     
+
                  })
                 .Child("image")
                 .Child("1")
-                .PutAsync(Request.Body);
+                .PutAsync(stream);
 
             // Track progress of the upload
             task.Progress.ProgressChanged += (s, e) => Console.WriteLine($"Progress: {e.Percentage} %");
@@ -126,6 +133,6 @@ namespace APIMyMyStore.Controllers
             var downloadUrl = await task;
             return downloadUrl;
         }
-    
+
     }
 }
