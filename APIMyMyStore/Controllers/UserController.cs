@@ -96,10 +96,12 @@ namespace APIMyMyStore.Controllers
         }
 
         [Route("checkapi")]
-
+        [HttpPost]
         public async Task<string> checkapiAsync()
         {
-            var stream = System.IO.File.Open(@"D:\hinh.jpg", FileMode.Open);
+            // var stream = System.IO.File.Open(@"D:\hinh.jpg", FileMode.Open);
+            // var body = Request.Body;
+
             var ProjectId = FirebaseAdmin.FirebaseApp.DefaultInstance.Options.ProjectId;
             //authentication
             string customToken =  await FirebaseAuth.DefaultInstance.CreateCustomTokenAsync("1");
@@ -115,7 +117,7 @@ namespace APIMyMyStore.Controllers
                  })
                 .Child("image")
                 .Child("1")
-                .PutAsync(stream);
+                .PutAsync(Request.Body);
 
             // Track progress of the upload
             task.Progress.ProgressChanged += (s, e) => Console.WriteLine($"Progress: {e.Percentage} %");
