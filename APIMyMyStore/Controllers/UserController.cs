@@ -80,34 +80,55 @@ namespace APIMyMyStore.Controllers
         [Route("updateavatar")]
         [HttpPost]
         [Authorize]
-        public IActionResult UpdateAvatar([FromBody] JObject pData)
+        public async Task<IActionResult> UpdateAvatar(IFormFile file)
         {
-            return Ok(() =>
-             {
-                string image = CommonMethods.ConvertToString(pData.GetValue("image").ToString()).Trim();
-                if(!image.IsUrl())
-                {
-                    throw new Exception(CommonConstants.MESSAGE_DATA_NOT_VALID);
-                }
-                long pId = GetTokenInfo().id;
-                return GetTemplateDAL(ViewName).Update(pId, new string[]{"image"}, new object[]{image});
+            APIResult res = new APIResult();
+            DBLibrary.TemplateDAL dal = GetTemplateDAL(ViewName);
 
-             });
+            try
+            {
+                dal.BeginTransaction();
+                long pId = GetTokenInfo().id;
+                var dtset = dal.GetAllById(pId);
+                long fileid = 0;
+                string name = "";
+                if (dtset.Tables[0].Rows.Count > 0)
+                {
+                    fileid = CommonMethods.ConvertToInt64(dtset.Tables[0].Rows[0]["fileid"]);
+                    name = CommonMethods.ConvertToString(dtset.Tables[0].Rows[0]["name"]);
+
+                }
+                if (fileid <= 0)
+                {
+                    fileid = GetTemplateDAL("files").Insert(new string[] { "name" }, new object[] { name });
+                }
+                var url = await CommonFileStore.Upload(file, fileid).ConfigureAwait(false);
+                if (url != null)
+                GetTemplateDAL(ViewName).Update(pId, new string[] { "fileid" }, new object[] { fileid });
+                res.SetIntResult(fileid);
+                dal.CommitTransaction();
+
+            }
+            catch (Exception ex)
+            {
+                dal.RollbackTransaction();
+                res.SetException(ex);
+            }
+
+            return Ok(res);
+
         }
 
         [Route("checkapi")]
         [HttpPost]
 
-        public async Task<string> checkapiAsync(List<IFormFile> files)
+        public async Task<string> checkapiAsync(IFormFile file)
         {
 
             var ProjectId = FirebaseAdmin.FirebaseApp.DefaultInstance.Options.ProjectId;
             //authentication
             string customToken =  await FirebaseAuth.DefaultInstance.CreateCustomTokenAsync("1");
             var cancellation = new CancellationTokenSource();
-            var filePath = "D:\\temp.png";
-            var stream = System.IO.File.Create(filePath);
-            await files[0].CopyToAsync(stream);
 
             // Constructr FirebaseStorage, path to where you want to upload the file and Put it there
             var task = new FirebaseStorage(
@@ -120,7 +141,7 @@ namespace APIMyMyStore.Controllers
                  })
                 .Child("image")
                 .Child("1")
-                .PutAsync(Request.Body);
+                .PutAsync(file.OpenReadStream());
 
             // Track progress of the upload
             task.Progress.ProgressChanged += (s, e) => Console.WriteLine($"Progress: {e.Percentage} %");
