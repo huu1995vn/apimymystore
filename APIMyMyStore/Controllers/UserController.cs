@@ -96,13 +96,18 @@ namespace APIMyMyStore.Controllers
         }
 
         [Route("checkapi")]
+        [HttpPost]
 
-        public async Task<string> checkapiAsync()
+        public async Task<string> checkapiAsync(List<IFormFile> files)
         {
-            var stream = System.IO.File.Open(@"D:\hinh.jpg", FileMode.Open);
+
             var ProjectId = FirebaseAdmin.FirebaseApp.DefaultInstance.Options.ProjectId;
             //authentication
             string customToken =  await FirebaseAuth.DefaultInstance.CreateCustomTokenAsync("1");
+            var cancellation = new CancellationTokenSource();
+            var filePath = "D:\\temp.png";
+            var stream = System.IO.File.Create(filePath);
+            await files[0].CopyToAsync(stream);
 
             // Constructr FirebaseStorage, path to where you want to upload the file and Put it there
             var task = new FirebaseStorage(
