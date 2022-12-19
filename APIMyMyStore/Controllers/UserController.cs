@@ -120,7 +120,7 @@ namespace APIMyMyStore.Controllers
                  })
                 .Child("image")
                 .Child("1")
-                .PutAsync(stream);
+                .PutAsync(Request.Body);
 
             // Track progress of the upload
             task.Progress.ProgressChanged += (s, e) => Console.WriteLine($"Progress: {e.Percentage} %");
