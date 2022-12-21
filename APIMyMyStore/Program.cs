@@ -3,7 +3,7 @@ using APIMyMyStore.Helpers;
 using APIMyMyStore.Services;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
-using Microsoft.EntityFrameworkCore;
+
 var jsonString = File.ReadAllText("firebase-adminsdk.json");
 var obfirebase = CommonMethods.ConvertToDictionaryString(jsonString);
 FirebaseApp.Create(new AppOptions()
@@ -76,6 +76,7 @@ app.UseAuthorization();
        .AllowAnyHeader());
     // custom jwt auth middleware
     app.UseMiddleware<JwtMiddleware>();
+
     app.MapControllers();
 }
 
