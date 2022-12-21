@@ -100,7 +100,7 @@ namespace APIMyMyStore.Controllers
                 }
                 if (fileid <= 0)
                 {
-                    fileid = GetTemplateDAL("files").Insert(new string[] { "name" }, new object[] { name });
+                    fileid = GetTemplateDAL("files").Insert(new string[] { "name", "userid" }, new object[] { name, GetTokenInfo().id });
                 }
                 var url = await CommonFileStore.Upload(file, fileid).ConfigureAwait(false);
                 if (url != null)
