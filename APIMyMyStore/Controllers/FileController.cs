@@ -22,7 +22,7 @@ namespace APIMyMyStore.Controllers
 
         protected override string FieldSelect => Variables.FieldSelectUser;
 
-        protected override List<string> FieldInsert => new List<string> { "name", "userid"};
+        protected override List<string> FieldInsert => new List<string> { "name", "userid" };
 
         protected override List<string> FieldUpdate => new List<string> { "name", "userid" };
 
@@ -79,13 +79,17 @@ namespace APIMyMyStore.Controllers
 
         [Route("Upload")]
         [HttpPost]
+        [Authorize]
 
-        public async Task<string> upload(IFormFile file)
+        public async Task<string> Upload(IFormFile file)
         {
-            return GetTemplateDAL(ViewName).Insert(pId, new string[]{"image"}, new object[]{image});
+            String name = Request.Query["name"];
+            long id = GetTemplateDAL(TableName).Insert(new string[] { "name", "userid" }, new object[] { name, GetTokenInfo().id });
+            return await CommonFileStore.Upload(file, id).ConfigureAwait(false);
 
-            
+
+
         }
-    
+
     }
 }

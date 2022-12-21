@@ -22,7 +22,7 @@ namespace APIMyMyStore.Controllers
 
         protected override string FieldSelect => Variables.FieldSelectUser;
 
-        protected override List<string> FieldInsert => new List<string> { "name", "image", "phone", "email", "address" };
+        protected override List<string> FieldInsert => new List<string> { "name", "fileid", "phone", "email", "address" };
 
         protected override List<string> FieldUpdate => new List<string> { "name", "address" };
 
@@ -114,49 +114,8 @@ namespace APIMyMyStore.Controllers
                 dal.RollbackTransaction();
                 res.SetException(ex);
             }
-
             return Ok(res);
-
         }
-        // string CreateTempfilePath()
-        // {
-        //     var filename = $"{Guid.NewGuid()}.tmp";
-        //     var directoryPath = Path.Combine("temp", "uploads");
-        //     if (!Directory.Exists(directoryPath)) Directory.CreateDirectory(directoryPath);
-
-        //     return Path.Combine(directoryPath, filename);
-        // }
-        [Route("checkapi")]
-        [HttpPost]
-
-        public async Task<string> checkapiAsync(IFormFile file)
-        {
-
-            var ProjectId = FirebaseAdmin.FirebaseApp.DefaultInstance.Options.ProjectId;
-            //authentication
-            string customToken =  await FirebaseAuth.DefaultInstance.CreateCustomTokenAsync("1");
-            var cancellation = new CancellationTokenSource();
-
-            // Constructr FirebaseStorage, path to where you want to upload the file and Put it there
-            var task = new FirebaseStorage(
-                 ProjectId + ".appspot.com",
-                 new FirebaseStorageOptions
-                 {
-                     AuthTokenAsyncFactory = () => Task.FromResult(customToken),
-                     ThrowOnCancel = true,
-
-                 })
-                .Child("image")
-                .Child("1")
-                .PutAsync(file.OpenReadStream());
-
-            // Track progress of the upload
-            task.Progress.ProgressChanged += (s, e) => Console.WriteLine($"Progress: {e.Percentage} %");
-
-            // await the task to wait until upload completes and get the download url
-            var downloadUrl = await task;
-            return downloadUrl;
-        }
-
+        
     }
 }
