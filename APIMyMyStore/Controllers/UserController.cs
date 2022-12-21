@@ -94,14 +94,14 @@ namespace APIMyMyStore.Controllers
 
              });
         }
-        string CreateTempfilePath()
-        {
-            var filename = $"{Guid.NewGuid()}.tmp";
-            var directoryPath = Path.Combine("temp", "uploads");
-            if (!Directory.Exists(directoryPath)) Directory.CreateDirectory(directoryPath);
+        // string CreateTempfilePath()
+        // {
+        //     var filename = $"{Guid.NewGuid()}.tmp";
+        //     var directoryPath = Path.Combine("temp", "uploads");
+        //     if (!Directory.Exists(directoryPath)) Directory.CreateDirectory(directoryPath);
 
-            return Path.Combine(directoryPath, filename);
-        }
+        //     return Path.Combine(directoryPath, filename);
+        // }
         [Route("checkapi")]
         [HttpPost]
         public async Task<string> checkapiAsync()
@@ -109,6 +109,7 @@ namespace APIMyMyStore.Controllers
             string tempfile = CreateTempfilePath();
             using var stream = System.IO.File.OpenWrite(tempfile);
             await Request.Body.CopyToAsync(stream);
+            
             var ProjectId = FirebaseAdmin.FirebaseApp.DefaultInstance.Options.ProjectId;
             //authentication
             string customToken = await FirebaseAuth.DefaultInstance.CreateCustomTokenAsync("1");

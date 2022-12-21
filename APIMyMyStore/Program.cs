@@ -4,10 +4,12 @@ using APIMyMyStore.Services;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.EntityFrameworkCore;
-
+var jsonString = File.ReadAllText("firebase-adminsdk.json");
+var obfirebase = CommonMethods.ConvertToDictionaryString(jsonString);
 FirebaseApp.Create(new AppOptions()
 {
     Credential = GoogleCredential.FromFile("firebase-adminsdk.json"),
+    ProjectId = obfirebase["project_id"]
 });
 var builder = WebApplication.CreateBuilder(args);
 var configurationBuilder = new ConfigurationBuilder()
@@ -68,10 +70,10 @@ app.UseAuthorization();
 // configure HTTP request pipeline
 {
     // global cors policy
-     app.UseCors(x => x
-        .AllowAnyOrigin()
-        .AllowAnyMethod()
-        .AllowAnyHeader());
+    app.UseCors(x => x
+       .AllowAnyOrigin()
+       .AllowAnyMethod()
+       .AllowAnyHeader());
     // custom jwt auth middleware
     app.UseMiddleware<JwtMiddleware>();
     app.MapControllers();
