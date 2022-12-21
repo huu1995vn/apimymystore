@@ -11,6 +11,8 @@ namespace APIMyMyStore.Entites
         public DateTime? updatedate { get; set; }
         public DateTime createdate { get; set; }
         public int status { get; set; }
+        public int fileid { get; set; }
+
         public string token { get; set; }
 
     }
