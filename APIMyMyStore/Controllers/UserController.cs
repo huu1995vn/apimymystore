@@ -80,42 +80,44 @@ namespace APIMyMyStore.Controllers
         [Route("updateavatar")]
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> UpdateAvatar(IFormFile file)
+        public IActionResult UpdateAvatar(IFormFile file)
         {
-            APIResult res = new APIResult();
-            DBLibrary.TemplateDAL dal = GetTemplateDAL(ViewName);
 
-            try
-            {
-                dal.BeginTransaction();
-                long pId = GetTokenInfo().id;
-                var dtset = dal.GetAllById(pId);
-                long fileid = 0;
-                string name = "";
-                if (dtset.Tables[0].Rows.Count > 0)
+
+
+            return Ok(() =>
                 {
-                    fileid = CommonMethods.ConvertToInt64(dtset.Tables[0].Rows[0]["fileid"]);
-                    name = CommonMethods.ConvertToString(dtset.Tables[0].Rows[0]["name"]);
+                    DBLibrary.TemplateDAL dal = GetTemplateDAL(ViewName);
+                    dal.BeginTransaction();
+                    try
+                    {
+                        long pId = GetTokenInfo().id;
+                        var dtset = dal.GetAllById(pId);
+                        long fileid = 0;
+                        string name = "";
+                        if (dtset.Tables[0].Rows.Count > 0)
+                        {
+                            fileid = CommonMethods.ConvertToInt64(dtset.Tables[0].Rows[0]["fileid"]);
+                            name = CommonMethods.ConvertToString(dtset.Tables[0].Rows[0]["name"]);
 
+                        }
+                        if (fileid <= 0)
+                        {
+                            fileid = GetTemplateDAL("files").Insert(new string[] { "name", "userid" }, new object[] { name, GetTokenInfo().id });
+                        }
+                        CommonFileStore.Upload(file, fileid).ConfigureAwait(false);
+                        GetTemplateDAL(ViewName).Update(pId, new string[] { "fileid" }, new object[] { fileid });
+                        dal.CommitTransaction();
+                        return fileid;
+                    }
+                    catch (Exception ex)
+                    {
+                        dal.RollbackTransaction();
+                        throw ex;
+                    }
                 }
-                if (fileid <= 0)
-                {
-                    fileid = GetTemplateDAL("files").Insert(new string[] { "name", "userid" }, new object[] { name, GetTokenInfo().id });
-                }
-                var url = await CommonFileStore.Upload(file, fileid).ConfigureAwait(false);
-                if (url != null)
-                GetTemplateDAL(ViewName).Update(pId, new string[] { "fileid" }, new object[] { fileid });
-                res.SetIntResult(fileid);
-                dal.CommitTransaction();
-
-            }
-            catch (Exception ex)
-            {
-                dal.RollbackTransaction();
-                res.SetException(ex);
-            }
-            return Ok(res);
+            );
         }
-        
+
     }
 }
