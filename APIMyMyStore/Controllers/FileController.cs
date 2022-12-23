@@ -9,7 +9,7 @@ using RaoXeAPI.Controllers;
 
 namespace APIMyMyStore.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class FileController : CommonController
     {
@@ -77,19 +77,77 @@ namespace APIMyMyStore.Controllers
              });
         }
 
-        [Route("Upload")]
+        [Route("upload")]
         [HttpPost]
         [Authorize]
-
-        public async Task<string> Upload(IFormFile file)
+        public IActionResult Upload(IFormFile file)
         {
-            String name = Request.Query["name"];
-            long id = GetTemplateDAL(TableName).Insert(new string[] { "name", "userid" }, new object[] { name, GetTokenInfo().id });
-            return await CommonFileStore.Upload(file, id).ConfigureAwait(false);
+            return Ok(() =>
+            {
+                long pUserId = GetTokenInfo().id;
+                String name = Request.Query["name"];
+                long fileid = GetTemplateDAL("files").Insert(new string[] { "name", "userid" }, new object[] { name, pUserId });
+                if (fileid > 0)
+                {
+                    CommonFileStore.Upload(file, fileid).ConfigureAwait(false);
+                }
+                else
+                {
+                    throw new Exception(CommonConstants.MESSAGE_DATA_NOT_VALID);
+                }
+                return fileid;
+            });
 
+        }
+
+        [Route("{slug}-{pFileId:long}j.{pExtension}")]
+        [HttpGet]
+        public async Task<IActionResult> ShowFileAsync(long pFileId, string pExtension)
+        {
+            string contentType = CommonMethods.GetContentType(pExtension);
+            try
+            {
+                HttpClient client = new HttpClient();
+                HttpResponseMessage httpResponse = await client.GetAsync($"https://firebasestorage.googleapis.com/v0/b/modern-optics-234509.appspot.com/o/image%2F{pFileId}?alt=media&token=bb0f0a4c-8237-44aa-a059-64c45ca6eeed");
+                Stream streamToReadFrom = await httpResponse.Content.ReadAsStreamAsync();
+                if (streamToReadFrom.Length <= 65)
+                {
+                    throw new Exception("Unknown");
+                }
+                return File(streamToReadFrom, contentType);
+
+            }
+            catch (System.Exception)
+            {
+
+                HttpClient client = new HttpClient();
+                HttpResponseMessage httpResponse = await client.GetAsync($"https://firebasestorage.googleapis.com/v0/b/modern-optics-234509.appspot.com/o/noimage.jpg?alt=media&token=a07cea58-6460-49ac-b183-676ccf1522c3");
+                Stream streamToReadFrom = await httpResponse.Content.ReadAsStreamAsync();
+                return File(streamToReadFrom, contentType);
+            }
 
 
         }
+
+
+
+        // private bool Is304(long pFileId)
+        // {
+        //     if (!string.IsNullOrEmpty(pPathFile))
+        //     {
+        //         string since = Request.Headers["If-Modified-Since"];
+        //         if (!string.IsNullOrEmpty(since))
+        //         {
+        //             DateTime ModifyDate;
+        //             System.IO.FileInfo ObjFile = new System.IO.FileInfo(pPathFile);
+        //             if (DateTime.TryParse(since, out ModifyDate) && ObjFile.LastWriteTime < ModifyDate)
+        //             {
+        //                 return true;
+        //             }
+        //         }
+        //     }
+        //     return false;
+        // }
 
     }
 }
