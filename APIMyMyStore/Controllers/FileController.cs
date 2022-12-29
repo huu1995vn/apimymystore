@@ -89,7 +89,7 @@ namespace APIMyMyStore.Controllers
                 long fileid = GetTemplateDAL("files").Insert(new string[] { "name", "userid" }, new object[] { name, pUserId });
                 if (fileid > 0)
                 {
-                    CommonFileStore.Upload(file, fileid).ConfigureAwait(false);
+                    CommonFileStore.Upload(file, fileid);
                 }
                 else
                 {
