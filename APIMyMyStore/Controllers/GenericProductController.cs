@@ -1,4 +1,5 @@
-﻿using APIMyMyStore.Helpers;
+﻿using System.Text.Json;
+using APIMyMyStore.Helpers;
 using APIMyMyStore.Services;
 using Firebase.Storage;
 using FirebaseAdmin;
@@ -11,20 +12,20 @@ namespace APIMyMyStore.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : CommonController
+    public class GenericProductController : CommonController
     {
 
-        protected override string TableName => "users";
+        protected override string TableName => "genericproducts";
 
-        protected override string ViewName => "users";
+        protected override string ViewName => "vwgenericproducts";
 
-        protected override string OrderByGrid => "id ASC";
+        protected override string OrderByGrid => "name ASC";
 
-        protected override string FieldSelect => Variables.FieldSelectUser;
+        protected override string FieldSelect => "";
 
-        protected override List<string> FieldInsert => new List<string> { "name", "fileid", "phone", "email", "address" };
+        protected override List<string> FieldInsert => new List<string> { "name", "fileid", "typeid", "materialid", "description", "video" };
 
-        protected override List<string> FieldUpdate => new List<string> { "name", "address" };
+        protected override List<string> FieldUpdate => new List<string> { "name", "fileid", "typeid", "materialid", "description", "video" };
 
         [Route("loaddata")]
         [HttpPost]
@@ -76,46 +77,34 @@ namespace APIMyMyStore.Controllers
              });
         }
 
-        [Route("updateavatar")]
+        [Route("savedata")]
         [HttpPost]
         [Authorize]
-        public IActionResult UpdateAvatar(IFormFile file)
+        public override IActionResult SaveData([FromBody] JObject pData)
         {
-
-
-
             return Ok(() =>
+            {
+                long res = 0;
+                long id = CommonMethods.ConvertToInt64(pData["id"]);
+                JArray products = (JArray)pData["products"];
+                List<string> FieldProduct = new List<string> { "name", "fileid", "description", "video" };
+                List<string> lstSaveFields = id > 0 ? this.FieldUpdate : this.FieldInsert;
+                if (CustomCheckValidSaveData != null)
                 {
-                    DBLibrary.TemplateDAL dal = GetTemplateDAL(ViewName);
-                    dal.BeginTransaction();
-                    try
-                    {
-                        long pId = GetTokenInfo().id;
-                        var dtset = dal.GetAllById(pId);
-                        long fileid = 0;
-                        string name = "";
-                        if (dtset.Tables[0].Rows.Count > 0)
-                        {
-                            fileid = CommonMethods.ConvertToInt64(dtset.Tables[0].Rows[0]["fileid"]);
-                            name = CommonMethods.ConvertToString(dtset.Tables[0].Rows[0]["name"]);
-
-                        }
-                        if (fileid <= 0)
-                        {
-                            fileid = GetTemplateDAL("files").Insert(new string[] { "name", "userid" }, new object[] { name, GetTokenInfo().id });
-                        }
-                        CommonFileStore.Upload(file, fileid).ConfigureAwait(false);
-                        GetTemplateDAL(ViewName).Update(pId, new string[] { "fileid" }, new object[] { fileid });
-                        dal.CommitTransaction();
-                        return fileid;
-                    }
-                    catch (Exception ex)
-                    {
-                        dal.RollbackTransaction();
-                        throw ex;
-                    }
+                    CustomCheckValidSaveData();
                 }
-            );
+                res = SaveDataTable(pData, TableName, lstSaveFields, IsAddUserIdColumn, ConditionUpdate);
+                if (id < 1)
+                {
+                    id = res;
+                }
+
+                if (OnAfterSaveData != null)
+                {
+                    OnAfterSaveData(id);
+                }
+                return res;
+            });
         }
 
     }

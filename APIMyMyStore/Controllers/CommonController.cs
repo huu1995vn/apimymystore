@@ -107,22 +107,22 @@ namespace RaoXeAPI.Controllers
         protected long SaveDataTable(JObject pData, string pTableName, List<string> pSaveFields, bool pIsAddUserId, string pConditionUpdate)
         {
             long res;
-            long pId = CommonMethods.ConvertToInt64(pData["Id"]);
+            long pId = CommonMethods.ConvertToInt64(pData["id"]);
             if (pId > 0)
             {
                 if (pIsAddUserId)
                 {
-                    if (!pSaveFields.Contains("UpdateUserId"))
+                    if (!pSaveFields.Contains("updateuserid"))
                     {
-                        pSaveFields.Add("UpdateUserId");
+                        pSaveFields.Add("updateuserid");
                     }
-                    if (!pSaveFields.Contains("UpdateDate"))
+                    if (!pSaveFields.Contains("updatedate"))
                     {
-                        pSaveFields.Add("UpdateDate");
+                        pSaveFields.Add("updatedate");
                     }
                 }
                 DBLibrary.TemplateDAL dal = GetTemplateDAL(pTableName);
-                dal.ID = "Id";
+                dal.ID = "id";
                 if (!string.IsNullOrEmpty(pConditionUpdate))
                 {
                     res = dal.Update(pId, pSaveFields, GetDataListToSave(pData, pSaveFields), pConditionUpdate);
@@ -386,7 +386,7 @@ namespace RaoXeAPI.Controllers
                     List<long> lstIds = new List<long>();
                     foreach (JObject pData in pListData)
                     {
-                        long id = CommonMethods.ConvertToInt64(pData["Id"]);
+                        long id = CommonMethods.ConvertToInt64(pData["id"]);
                         List<string> lstSaveFields = id > 0 ? this.FieldUpdate : this.FieldInsert;
                         if (CustomCheckValidSaveData != null)
                         {
@@ -408,7 +408,7 @@ namespace RaoXeAPI.Controllers
             return Ok(() =>
             {
                 long res = 0;
-                long id = CommonMethods.ConvertToInt64(pData["Id"]);
+                long id = CommonMethods.ConvertToInt64(pData["id"]);
                 List<string> lstSaveFields = id > 0 ? this.FieldUpdate : this.FieldInsert;
                 if (CustomCheckValidSaveData != null)
                 {

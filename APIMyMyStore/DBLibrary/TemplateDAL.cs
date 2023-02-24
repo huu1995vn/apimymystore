@@ -15,7 +15,7 @@ namespace DBLibrary
         #region "Properties"
 
         public string TableName = string.Empty;
-        public string ID = "Id";
+        public string ID = "id";
 
         #endregion
 
